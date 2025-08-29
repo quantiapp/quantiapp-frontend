@@ -1,59 +1,22 @@
-# QuantiaApp
+# 📊 Quantia – Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.1.
+Bem-vindo ao **Quantia**, uma aplicação web moderna para **gestão de finanças pessoais baseada em objetivos**.  
+Este repositório contém o **frontend** desenvolvido em **Angular**, estruturado como uma **Progressive Web App (PWA)**.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Funcionalidades principais
+- Gerenciamento de **cartões** e **metas financeiras**  
+- Visualização de **transações recentes** e detalhadas  
+- Conversão automática de moedas com base em taxas de câmbio  
+- Dashboard intuitivo com **gráficos de progresso**  
+- **Planos e limites** personalizáveis para cada utilizador  
+- Suporte a **compartilhamento de cartões**  
 
-```bash
-ng serve
-```
+---
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🛠️ Tecnologias utilizadas
+- [Angular](https://angular.io/) 19  
+- [RxJS](https://rxjs.dev/)  
+- [TailwindCSS](https://tailwindcss.com/)  
+- [Angular PWA](https://angular.io/guide/service-worker-intro) (Service Worker, Offline, Push)  
