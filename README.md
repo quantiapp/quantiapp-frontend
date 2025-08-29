@@ -19,4 +19,4 @@ Este repositório contém o **frontend** desenvolvido em **Angular**, estruturad
 - [Angular](https://angular.io/) 19  
 - [RxJS](https://rxjs.dev/)  
 - [TailwindCSS](https://tailwindcss.com/)  
-- [Angular PWA](https://angular.io/guide/service-worker-intro) (Service Worker, Offline, Push)  
+- [Angular PWA](https://angular.io/guide/service-worker-intro) (Service Worker, Offline, Push) 
