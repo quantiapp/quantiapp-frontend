@@ -1,12 +1,14 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideEnvironmentNgxMask } from "ngx-mask";
+import { NgxMaskConfig, provideEnvironmentNgxMask } from "ngx-mask";
 
 import { routes } from './app.routes';
 
+const maskConfig: Partial<NgxMaskConfig> = { thousandSeparator: '.', decimalMarker: ',' }
+
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideEnvironmentNgxMask(),
+    provideEnvironmentNgxMask(maskConfig),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
