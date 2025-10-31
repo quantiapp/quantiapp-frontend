@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Directive, inject, Injectable } from "@angular/core";
-import { environment } from "environments/environment.development";
 import { catchError, Observable, of } from "rxjs";
 import { Snapshot } from "./snapshot.service";
+import { environment } from "environments/environment";
 
 @Injectable({
     providedIn: 'root'
