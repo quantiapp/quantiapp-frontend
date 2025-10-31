@@ -21,7 +21,7 @@ import { Darkable } from "@shared/directives/darkable";
                 </svg>
               </div>
               <div class="content">
-                <p class="text-white text-sm">
+                <p class="text-white text-base">
                   Adicionar cartão
                 </p>
               </div>
@@ -40,7 +40,7 @@ import { Darkable } from "@shared/directives/darkable";
                 </svg>
               </div>
               <div class="content">
-                <p class="text-white text-sm">
+                <p class="text-white text-base">
                   Adicionar meta
                 </p>
               </div>
@@ -59,7 +59,7 @@ import { Darkable } from "@shared/directives/darkable";
                 </svg>
               </div>
               <div class="content">
-                <p class="text-white text-sm">
+                <p class="text-white text-base">
                   Registrar transação
                 </p>
               </div>
@@ -87,7 +87,7 @@ import { Darkable } from "@shared/directives/darkable";
         </button>
   
         <button (click)="this.toggleDropdown()" class="w-[3.125rem] h-[3.125rem] bg-(color:--primary) rounded-full flex justify-center items-center">
-          <svg [class]="(this.dropdownIsExtended()) ? 'rotate-45' : 'rotate-0'" class="duration-[.6s]" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg [class]="(this.dropdownIsExtended()) ? 'rotate-45' : 'rotate-0'" class="duration-[.4s]" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M1.5 14H14M14 14H26.5M14 14V26.5M14 14V1.5" stroke="#202020" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
 

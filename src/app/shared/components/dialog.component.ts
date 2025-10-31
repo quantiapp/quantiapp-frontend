@@ -34,17 +34,17 @@ import { Darkable } from "@shared/directives/darkable";
   `,
   styles: `
     .dialog-overlay.appear{
-      animation: appear .4s forwards ease-in-out;
+      animation: appear .3s forwards ease-in-out;
     }
     .dialog-overlay.disappear{
-        animation: disappear .7s forwards ease-in-out;
+        animation: disappear .6s forwards ease-in-out;
     }
 
     .q-panel.zoom-in{
-      animation: zoomIn .4s forwards ease-in-out;
+      animation: zoomIn .3s forwards ease-in-out;
     }
     .q-panel.zoom-out{
-        animation: zoomOut .7s forwards ease-in-out;
+        animation: zoomOut .6s forwards ease-in-out;
     }
 
     @keyframes appear {

@@ -1,13 +1,14 @@
-import { AfterViewInit, Directive, ElementRef, HostListener, input, output, signal, WritableSignal } from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, HostListener, input, OnChanges, output, signal, SimpleChanges, WritableSignal } from "@angular/core";
 
 @Directive()
-export abstract class Scroller<T = any> implements AfterViewInit{
+export abstract class Scroller<T = any> implements AfterViewInit, OnChanges{
     
     private initialX: number | null = null;
     private initialY: number | null = null;
     
     protected activeIndex = signal(0);
     itemsArray = input.required<T[]>();
+    alignment = input<string>('center');
     active = output<number>();
 
     scrollerElementRef!: ElementRef<HTMLElement>;
@@ -20,6 +21,10 @@ export abstract class Scroller<T = any> implements AfterViewInit{
     ngAfterViewInit(): void {
         this.bootstrap();
         this.valueToPadding();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        
     }
 
     protected bootstrap(){}
@@ -58,6 +63,10 @@ export abstract class Scroller<T = any> implements AfterViewInit{
         let scrollerElementRefChildrensAsHtmlElement = this.scrollerElementRef.nativeElement.childNodes[CONTAINER_INDEX] as HTMLElement;
         let getActiveItemByActiveIndexAsHtmlElement = scrollerElementRefChildrensAsHtmlElement.children[activeIndex] as HTMLElement;
         
+        for (let index = 0; index < scrollerElementRefChildrensAsHtmlElement.children.length; index++) {
+            (scrollerElementRefChildrensAsHtmlElement.children[index] as HTMLElement).style.scrollSnapAlign = this.alignment();
+        }
+
         this.active.emit(activeIndex);
 
         this.scrollerElementRef.nativeElement.scrollTo(getActiveItemByActiveIndexAsHtmlElement.offsetLeft - this.paddingX(), 0)

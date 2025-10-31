@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { DialogComponent } from "@shared/components/dialog.component";
 import { NgxMaskPipe } from 'ngx-mask';
 import { SubmitableButton } from "@shared/directives/submitable-button";
 import { Darkable } from "@shared/directives/darkable";
 import { CardTemplate } from '@client/secure/ui/card.template';
+import { DashboardSummary } from '../../models';
 
 @Component({
   selector: 'app-total-balance',
@@ -42,17 +43,17 @@ import { CardTemplate } from '@client/secure/ui/card.template';
                   <div class="dialog-body flex flex-col gap-6">
                     <div class="head flex justify-between items-center">
                       <h2 class="text-base font-bold text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">Taxas de câmbio</h2>
-                      <h2 class="text-base font-bold text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ 'AOA' }}</h2>
+                      <h2 class="text-base font-bold text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ summary().exchanges.user_currency.code }}</h2>
                     </div>
                     <div class="exchanges flex flex-col gap-3">
-                      <div class="exchange flex justify-between items-center">
-                        <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">1 EUR</p>
-                        <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ 1532.90 | mask: 'separator.2' : { thousandSeparator: '.', decimalMarker: ',' } }}</p>
-                      </div>
-                      <div class="exchange flex justify-between items-center">
-                        <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">1 USD</p>
-                        <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ 1532.90 | mask: 'separator.2' : { thousandSeparator: '.', decimalMarker: ',' } }}</p>
-                      </div>
+                      @for (conversion of summary().exchanges.conversions; track $index) {
+                        <div class="exchange flex justify-between items-center">
+                          <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">1 {{ conversion.from }}</p>
+                          <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ conversion.value | mask: 'separator.2' }}</p>
+                        </div>
+                      } @empty {
+                        <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">Sem dados</p>
+                      }
                     </div>
                   </div>
                   <div class="dialog-footer flex justify-end items-center">
@@ -72,7 +73,7 @@ import { CardTemplate } from '@client/secure/ui/card.template';
       <ng-container content>
         <div class="card-content">
           <p class="text-[1.688rem] font-bold text-(color:--secondary) text-shadow-[0px_3px_4px_rgba(0,0,0,0.12)]" appDarkable="dark:text-(color:--dm-secondary)">
-            AOA {{ 345343459.91 | mask: 'separator.2' : { thousandSeparator: '.', decimalMarker: ',' } }}
+            AOA {{ summary().total_balance | mask: 'separator.2' }}
           </p>
         </div>
       </ng-container>
@@ -89,5 +90,5 @@ import { CardTemplate } from '@client/secure/ui/card.template';
   styles: ``
 })
 export class TotalBalanceComponent {
-
+  summary = input.required<DashboardSummary>();
 }

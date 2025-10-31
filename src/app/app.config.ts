@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { NgxMaskConfig, provideEnvironmentNgxMask } from "ngx-mask";
 
 import { routes } from './app.routes';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
 const maskConfig: Partial<NgxMaskConfig> = { thousandSeparator: '.', decimalMarker: ',' }
 
@@ -12,5 +13,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
+    provideHttpClient()
   ]
 };

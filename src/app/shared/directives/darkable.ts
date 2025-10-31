@@ -15,7 +15,7 @@ export class Darkable implements OnInit {
       } else if(this.appDarkable().includes('dark:text-')){
         return 'dm-text-color-transition';
       } else {
-        return '';
+        return 'dm-no-transition';
       }
     })
 
