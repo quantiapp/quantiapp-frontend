@@ -32,6 +32,17 @@
     font-family: 'space-grotesk';
 }
 
+.overflow-x-auto::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar
+{
+    display: none;
+}
+.overflow-x-auto,
+.no-scrollbar{
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
 .limited-container{
     max-width: 95%;
     margin: 0px auto;
@@ -42,6 +53,12 @@
 }
 .dm-text-color-transition{
     transition: color .258s ease-in-out;
+}
+
+@media (prefers-color-scheme: dark) {
+    .darkmode-enabled > svg path {
+        stroke: var(--dm-secondary);
+    }
 }
 
 /* xl */

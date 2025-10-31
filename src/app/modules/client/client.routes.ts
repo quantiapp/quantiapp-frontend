@@ -8,11 +8,12 @@ export const clientRoutes: Routes = [
     },
     {
         path: 'auth',
-        loadComponent:() => import('./auth/pages/master.layout').then(layout => layout.MasterLayout),
+        loadComponent:() => import('./auth/layouts/master.layout').then(layout => layout.MasterLayout),
         loadChildren: () => import('./auth/client.auth.routes').then(routes => routes.clientAuthRoutes)
     },
     {
         path: 'account',
+        loadComponent:() => import('./secure/layouts/master.layout').then(layout => layout.MasterLayout),
         loadChildren: () => import('./secure/client.secure.routes').then(routes => routes.clientSecureRoutes)
     }
 ];
