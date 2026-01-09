@@ -9,6 +9,7 @@ import { Darkable } from '@shared/directives/darkable';
 import { TransactionColorPipe } from '@shared/pipes/transaction-color-pipe';
 import { TransactionExchangePipe } from '@shared/pipes/transaction-exchange-pipe';
 import { TransactionPrefixPipe } from '@shared/pipes/transaction-prefix-pipe';
+import { GoalDepencendies } from '@core/models/dependencies.model';
 
 @Component({
   selector: 'app-dashboard-goals',
@@ -117,7 +118,7 @@ import { TransactionPrefixPipe } from '@shared/pipes/transaction-prefix-pipe';
 })
 export class GoalsComponent {
   isLoading = input.required<boolean>();
-  dependencies = input.required<{ account: DashboardAccount }>();
+  dependencies = input.required<GoalDepencendies>();
   goals = input.required<DashboardGoal[]>();
 
   activeGoalEmitter = output<number>();

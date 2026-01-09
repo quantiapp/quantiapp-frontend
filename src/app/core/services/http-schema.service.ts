@@ -7,7 +7,7 @@ import { environment } from "environments/environment";
 @Injectable({
     providedIn: 'root'
 })
-export abstract class GenericApiService {
+export abstract class HttpSchema {
 
     private http = inject(HttpClient);
 

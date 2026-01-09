@@ -22,7 +22,7 @@ import { Darkable } from "@shared/directives/darkable";
               </div>
               <div class="content">
                 <p class="text-white text-base">
-                  Adicionar cartão
+                  Adicionar conta
                 </p>
               </div>
             </div>
@@ -80,7 +80,7 @@ import { Darkable } from "@shared/directives/darkable";
           </svg>
         </button>
   
-        <button [routerLink]="['/account/cards']" [routerLinkActive]="'active'">
+        <button [routerLink]="['/account/accounts']" [routerLinkActive]="'active'">
           <svg width="31" height="30" viewBox="0 0 31 30" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4.25 13.75V19.7502C4.25 21.1504 4.25 21.8501 4.52248 22.3849C4.76217 22.8553 5.14434 23.2381 5.61475 23.4778C6.149 23.75 6.84874 23.75 8.24614 23.75H22.7539C24.1513 23.75 24.85 23.75 25.3842 23.4778C25.8547 23.2381 26.2381 22.8553 26.4778 22.3849C26.75 21.8506 26.75 21.1519 26.75 19.7545V13.75M4.25 13.75V11.25M4.25 13.75H26.75M4.25 11.25V10.2502C4.25 8.85011 4.25 8.14953 4.52248 7.61475C4.76217 7.14434 5.14434 6.76217 5.61475 6.52248C6.14953 6.25 6.85011 6.25 8.25024 6.25H22.7502C24.1504 6.25 24.8495 6.25 25.3842 6.52248C25.8547 6.76217 26.2381 7.14434 26.4778 7.61475C26.75 8.149 26.75 8.84874 26.75 10.2461V11.25M4.25 11.25H26.75M9.25 18.75H14.25M26.75 13.75V11.25" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>

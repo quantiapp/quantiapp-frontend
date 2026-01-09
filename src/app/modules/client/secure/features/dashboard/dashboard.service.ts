@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { GenericApiService } from "@core/services/generic.service";
+import { HttpSchema } from "@core/services/http-schema.service";
 import { Observable } from "rxjs";
 import { DashboardFacade } from "./dashboard.facade";
 import { DashboardSimulator } from "./simulator.service";
@@ -10,7 +10,7 @@ import { DashboardGoal, DashboardSnapshot, DashboardTransaction } from "./models
 })
 export class DashboardService {
     private simulator = inject(DashboardSimulator);
-    private generic = inject(GenericApiService);
+    private httpSchema = inject(HttpSchema);
 
     get loadSnapshot(): Observable<DashboardSnapshot> {
         return this.simulator.data();

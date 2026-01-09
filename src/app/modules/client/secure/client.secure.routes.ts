@@ -6,4 +6,9 @@ export const clientSecureRoutes: Routes = [
         title: 'Dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.page').then(page => page.DashboardPage),
     },
+    {
+        path: 'accounts',
+        title: 'Minhas contas',
+        loadComponent: () => import('./features/accounts/account.page').then(page => page.AccountPage)
+    }
 ];

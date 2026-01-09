@@ -1,10 +1,11 @@
 import { Component, input } from '@angular/core';
-import { DashboardAccount, DashboardGoal, DashboardTransaction } from '../../models';
+import { Account, AccountTransaction } from '../../models';
 import { TransactionsContainer } from "@shared/components/transactions-container/transactions-container";
+import { BaseGoal } from '@core/models/base-goal.model';
 import { TransactionDependencies } from '@core/models/dependencies.model';
 
 @Component({
-  selector: 'app-dashboard-transactions',
+  selector: 'app-account-transactions',
   imports: [TransactionsContainer],
   template: `
     <div class="section-transactions">
@@ -13,8 +14,8 @@ import { TransactionDependencies } from '@core/models/dependencies.model';
   `,
   styles: ``
 })
-export class TransactionsComponent {
+export class Transactions {
   isLoading = input.required<boolean>();
   dependencies = input.required<TransactionDependencies>();
-  transactions = input.required<DashboardTransaction[]>();
+  transactions = input.required<AccountTransaction[]>();
 }

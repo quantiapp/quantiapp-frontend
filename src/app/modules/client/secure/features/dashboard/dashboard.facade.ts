@@ -4,11 +4,12 @@ import { map, Observable, of, switchMap, take, takeLast, tap } from "rxjs";
 import { DashboardPage } from "./dashboard.page";
 import { DashboardAccount, DashboardGoal, DashboardSnapshot, DashboardState, DashboardTransaction } from "./models";
 import { Snapshot } from "@core/services/snapshot.service";
+import { ISnapshot, ISnapshotState } from "@core/interfaces/snapshot-state.interface";
 
 @Injectable({
     providedIn: DashboardPage
 })
-export class DashboardFacade extends Snapshot<DashboardState> {
+export class DashboardFacade extends Snapshot<DashboardState> implements ISnapshot<DashboardSnapshot> {
     private api = inject(DashboardService);
     readonly activeAccount$: WritableSignal<number> = signal(0);
     readonly activeGoal$: WritableSignal<number> = signal(0);
