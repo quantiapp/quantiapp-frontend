@@ -1,11 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { CardTemplate } from '@client/secure/ui/card.template';
-import { ScrollerComponent } from '@shared/components/scroller.component';
-import { TailwindClassApplier } from '@shared/directives/tailwind-class-applier';
-import { NgxMaskPipe } from 'ngx-mask';
-import { DashboardAccount } from '../../models';
-import { Darkable } from '@shared/directives/darkable';
+import { DashboardAccountViewModel } from '../../models';
 import { AccountsContainer } from "@shared/components/accounts-container/accounts-container";
 
 @Component({
@@ -19,7 +13,7 @@ import { AccountsContainer } from "@shared/components/accounts-container/account
   styles: ``
 })
 export class AccountsComponent {
-  accounts = input.required<DashboardAccount[]>();
+  accounts = input.required<DashboardAccountViewModel[]>();
   activeAccountEmitter = output<number>();
   isLoading = input.required<boolean>();
 

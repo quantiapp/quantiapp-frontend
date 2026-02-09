@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { AccountsContainer } from "@shared/components/accounts-container/accounts-container";
-import { Account } from '../../models';
 import { Darkable } from "@shared/directives/darkable";
+import { AccountViewModel } from '../../models';
 
 @Component({
   selector: 'app-shared-accounts',
@@ -18,7 +18,7 @@ import { Darkable } from "@shared/directives/darkable";
   styles: ``
 })
 export class SharedAccounts {
-  accounts = input.required<Account[]>();
+  accounts = input.required<AccountViewModel[]>();
   activeAccountEmitter = output<number>();
   isLoading = input.required<boolean>();
 }

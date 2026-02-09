@@ -21,6 +21,27 @@
     --breakpoint-5xl: 1900px;
     --breakpoint-xl-1920: 1920px;
     --breakpoint-6xl: 2050px;
+
+    /* 1. Cores personalizadas */
+    --color-primary: #F1C40F;
+    --color-background-light: #F8FAFC;
+    --color-background-dark: #0F172A;
+
+    /* 3. Animações Personalizadas */
+    --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    --animate-progress: progress 2s ease-in-out infinite;
+    --animate-shimmer: shimmer 2s infinite;
+
+    /* 4. Keyframes */
+    @keyframes progress {
+        0% { width: 0%; left: 0%; }
+        50% { width: 30%; left: 35%; }
+        100% { width: 0%; left: 100%; }
+    }
+    
+    @keyframes shimmer {
+        100% { transform: translateX(100%); }
+    }
 }
 
 :root{

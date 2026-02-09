@@ -1,1 +1,5 @@
-<router-outlet></router-outlet>
+@if(isResolving()){
+    <app-loading-data></app-loading-data>
+} @else {
+    <router-outlet></router-outlet>
+}

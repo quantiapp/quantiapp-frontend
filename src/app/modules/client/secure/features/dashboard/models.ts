@@ -1,14 +1,11 @@
 import { ISnapshotState } from "@core/interfaces/snapshot-state.interface";
-import { AccountSettings } from "@core/models/account-settings.model";
-import { AccountType } from "@core/models/account-type.model";
-import { BaseAccount } from "@core/models/base-account.model";
-import { BaseGoal } from "@core/models/base-goal.model";
-import { BaseTransaction } from "@core/models/base-transaction.model";
+import { BaseAccount, BaseAccountViewModel } from "@core/models/base-account.model";
+import { BaseGoal, BaseGoalViewModel } from "@core/models/base-goal.model";
+import { BaseTransaction, BaseTransactionViewModel } from "@core/models/base-transaction.model";
 import { Currency } from "@core/models/currency.model";
-import { Icon } from "@core/models/icon.model";
 
 export interface DashboardSnapshot {
-    accounts: DashboardAccount[]
+    accounts: DashboardAccountViewModel[]
     summary: DashboardSummary
 }
 
@@ -27,8 +24,9 @@ export interface DashboardSummary {
 
 export interface DashboardState extends ISnapshotState {}
 
-export interface DashboardAccount extends BaseAccount<DashboardGoal> {}
+export interface DashboardAccountViewModel extends BaseAccountViewModel {}
 
-export interface DashboardGoal extends BaseGoal<DashboardAccount, DashboardTransaction>{}
+export interface DashboardGoalViewModel extends BaseGoalViewModel{}
 
-export interface DashboardTransaction extends BaseTransaction<DashboardGoal>{}
+export interface DashboardTransactionViewModel extends BaseTransactionViewModel{}
+export interface DashboardTransaction extends BaseTransaction{}

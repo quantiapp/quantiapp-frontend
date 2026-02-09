@@ -1,9 +1,9 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, OnInit, output } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { ScrollerComponent } from "../scroller.component";
 import { CardTemplate } from '@client/secure/ui/card.template';
 import { NgxMaskPipe } from 'ngx-mask';
-import { BaseAccount } from '@core/models/base-account.model';
+import { BaseAccountViewModel } from '@core/models/base-account.model';
 import { Darkable } from "@shared/directives/darkable";
 
 @Component({
@@ -34,28 +34,34 @@ import { Darkable } from "@shared/directives/darkable";
                 </div>
                 <div class="exchanges">
                   <p class="text-sm font-medium uppercase" appDarkable="dark:text-(color:--dm-secondary)">
-                    {{ item.settings.currency.code }}
+                    {{ item.currency.code }}
                   </p>
                 </div>
               </div>
             </ng-container>
             <ng-container content>
               <div class="card-content flex flex-col gap-2">
-                <p class="text-sm text-(color:--secondary)/60 capitalize" appDarkable="dark:text-(color:--dm-secondary)/70">
-                  {{ item.type.description }}
-                </p>
+                @if(item.owner){
+                  <p class="text-sm text-(color:--secondary)/60 capitalize" appDarkable="dark:text-(color:--dm-secondary)/70">
+                    {{ item.owner }}
+                  </p>
+                } @else {
+                  <p class="text-sm text-(color:--secondary)/60 capitalize" appDarkable="dark:text-(color:--dm-secondary)/70">
+                    {{ item.account_type.description }}
+                  </p>
+                }
                 <p
                 class="text-[1.688rem] font-bold text-shadow-[0px_3px_4px_rgba(0,0,0,0.12)]"
-                [style.color]="item.settings.color"
+                [style.color]="item.color"
                 appDarkable="dark:text-(color:--dm-secondary)"
                 >
-                  {{ item.amount | mask: 'separator.2' }}
+                  {{ item.can_see_balance ? (item.balance | mask: 'separator.2') : '**********' }}
                 </p>
               </div>
             </ng-container>
             <ng-container foot>
               <div class="ctas flex gap-[0.625rem] flex-wrap justify-start items-center">
-                <a href="" class="text-sm flex gap-1 justify-center items-center text-white rounded-full px-2 py-2" [style.background-color]="item.settings.color">
+                <a href="" class="text-sm flex gap-1 justify-center items-center text-white rounded-full px-2 py-2" [style.background-color]="item.color">
                   <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.5 12.0001H12.5M12.5 12.0001H16.5M12.5 12.0001V16.0001M12.5 12.0001V8.0001M12.5 21.0001C7.52944 21.0001 3.5 16.9707 3.5 12.0001C3.5 7.02954 7.52944 3.0001 12.5 3.0001C17.4706 3.0001 21.5 7.02954 21.5 12.0001C21.5 16.9707 17.4706 21.0001 12.5 21.0001Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
@@ -77,12 +83,16 @@ import { Darkable } from "@shared/directives/darkable";
   `,
   styles: ``
 })
-export class AccountsContainer {
-  accounts = input.required<BaseAccount[]>();
+export class AccountsContainer implements OnInit {
+  accounts = input.required<BaseAccountViewModel[]>();
   activeAccountEmitter = output<number>();
   isLoading = input.required<boolean>();
 
   updateActiveAccount(index: number): void {
     this.activeAccountEmitter.emit(index);
+  }
+
+  ngOnInit(): void {
+    console.log(this.accounts());
   }
 }

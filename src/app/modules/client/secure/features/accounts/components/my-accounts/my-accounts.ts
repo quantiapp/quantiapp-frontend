@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { AccountsContainer } from "@shared/components/accounts-container/accounts-container";
-import { Account } from '../../models';
+import { AccountViewModel } from '../../models';
 
 @Component({
   selector: 'app-my-accounts',
@@ -13,7 +13,7 @@ import { Account } from '../../models';
   styles: ``
 })
 export class MyAccounts {
-  accounts = input.required<Account[]>();
+  accounts = input.required<AccountViewModel[]>();
   activeAccountEmitter = output<number>();
   isLoading = input.required<boolean>();
 

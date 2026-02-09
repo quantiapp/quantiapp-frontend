@@ -1,11 +1,11 @@
-import { BaseAccount } from "./base-account.model";
-import { BaseGoal } from "./base-goal.model";
+import { BaseAccountViewModel } from "./base-account.model";
+import { BaseGoalViewModel } from "./base-goal.model";
 
 export interface GoalDepencendies {
-    account: BaseAccount
+    account: BaseAccountViewModel
 }
 
 export interface TransactionDependencies {
-    account: BaseAccount,
-    goal?: BaseGoal
+    account: BaseAccountViewModel,
+    goal?: BaseGoalViewModel
 }

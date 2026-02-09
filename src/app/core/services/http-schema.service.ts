@@ -7,7 +7,7 @@ import { environment } from "environments/environment";
 @Injectable({
     providedIn: 'root'
 })
-export abstract class HttpSchema {
+export class HttpSchema {
 
     private http = inject(HttpClient);
 
@@ -15,16 +15,14 @@ export abstract class HttpSchema {
         'Authorization': 'Bearer '
     });
         
-    protected get<T>(endpoint: string, options: any = { endpoint: environment.server }): Observable<T>{
+    get<T>(uri: string, options?: any): Observable<T>{
         const hdrs = (options.headers) ? this.appendOrReplaceHeaders(options.headers) : this.headers;
 
-        return this.http.get<T>(`${ options.endpoint }/${ endpoint }`, { headers: hdrs })
+        return this.http.get<T>(`${ options.url ?? environment.server }/${ uri }`, { headers: hdrs })
         .pipe();
     }
 
-    protected post<T>(uri: string, body: any,
-        options: any = { endpoint: environment.server }
-    ): Observable<T>{
+    post<T>(uri: string, body: any, options?: any ): Observable<T>{
 
         let localHeaders: HttpHeaders = this.appendOrReplaceHeaders({
             'Access-Control-Allow-Origin': '*',
@@ -33,8 +31,8 @@ export abstract class HttpSchema {
             ...(options.headers instanceof HttpHeaders ? this.headersToObject(options.headers) : options.headers)
         });
 
-        console.log("Estes são os headers para o meu endpoint: [POST] " + uri, localHeaders);
-        return this.http.post<T>(`${ options.endpoint }/${ uri }`, body, { headers: localHeaders })
+        console.log("Estes são os headers para o meu url: [POST] " + uri, localHeaders);
+        return this.http.post<T>(`${ options.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
         .pipe(
             catchError(error => {
                 this.connectionError(error);
@@ -43,9 +41,7 @@ export abstract class HttpSchema {
         )
     }
 
-    protected put<T>(uri: string, body: any,
-        options: any = { endpoint: environment.server }
-    ): Observable<T>{
+    put<T>(uri: string, body: any, options?: any): Observable<T>{
         let localHeaders: HttpHeaders = this.appendOrReplaceHeaders({
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PUT',
@@ -53,8 +49,8 @@ export abstract class HttpSchema {
             ...(options.headers instanceof HttpHeaders ? this.headersToObject(options.headers) : options.headers)
         });
 
-        console.log("Estes são os headers para o meu endpoint: [PUT] " + uri, localHeaders);
-        return this.http.put<T>(`${ options.endpoint }/${ uri }`, body, { headers: localHeaders })
+        console.log("Estes são os headers para o meu url: [PUT] " + uri, localHeaders);
+        return this.http.put<T>(`${ options.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
         .pipe(
             catchError(error => {
                 this.connectionError(error);
@@ -63,9 +59,7 @@ export abstract class HttpSchema {
         )
     }
 
-    protected patch<T>(uri: string, body: any,
-        options: any = { endpoint: environment.server }
-    ): Observable<T>{
+    patch<T>(uri: string, body: any, options?: any): Observable<T>{
         let localHeaders: HttpHeaders = this.appendOrReplaceHeaders({
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PUT',
@@ -73,8 +67,8 @@ export abstract class HttpSchema {
             ...(options.headers instanceof HttpHeaders ? this.headersToObject(options.headers) : options.headers)
         });
 
-        console.log("Estes são os headers para o meu endpoint: [PUT] " + uri, localHeaders);
-        return this.http.patch<T>(`${ options.endpoint }/${ uri }`, body, { headers: localHeaders })
+        console.log("Estes são os headers para o meu url: [PUT] " + uri, localHeaders);
+        return this.http.patch<T>(`${ options.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
         .pipe(
             catchError(error => {
                 this.connectionError(error);
@@ -83,7 +77,7 @@ export abstract class HttpSchema {
         )
     }
 
-    protected delete<T>(uri: string, options?: {}): Observable<T>{
+    delete<T>(uri: string, options?: {}): Observable<T>{
         return this.http.delete<T>(`${ environment.server }/${ uri }`, options)
         .pipe(
             catchError(error => {

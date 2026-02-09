@@ -1,10 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import { NoDataMessageUi } from "@shared/ui/no-data-message/no-data-message.ui";
 import { CoinSpinnerUi } from "@shared/ui/coin-spinner/coin-spinner.ui";
 import { CardTemplate } from "@client/secure/ui/card.template";
 import { RouterLink } from "@angular/router";
-import { BaseAccount } from '@core/models/base-account.model';
-import { BaseGoal } from '@core/models/base-goal.model';
 import { BaseTransaction } from '@core/models/base-transaction.model';
 import { TransactionColorPipe } from '@shared/pipes/transaction-color-pipe';
 import { TransactionExchangePipe } from '@shared/pipes/transaction-exchange-pipe';
@@ -12,17 +10,19 @@ import { TransactionPrefixPipe } from '@shared/pipes/transaction-prefix-pipe';
 import { TailwindClassApplier } from "@shared/directives/tailwind-class-applier";
 import { NgxMaskPipe } from 'ngx-mask';
 import { Darkable } from "@shared/directives/darkable";
-import { TransactionDependencies } from '@core/models/dependencies.model';
+import { FinanceStoreViewModel } from '@core/view-models/finance-store.viewmodel';
+import { FinanceStore } from '@core/data/finance-store.data';
+import { FormatDatePipe } from '@shared/pipes/format-date-pipe';
 
 @Component({
   selector: 'app-transactions-container',
-  imports: [NoDataMessageUi, CoinSpinnerUi, CardTemplate, RouterLink, TransactionColorPipe, TransactionExchangePipe, TransactionPrefixPipe, TailwindClassApplier, NgxMaskPipe, Darkable],
+  imports: [NoDataMessageUi, CoinSpinnerUi, CardTemplate, RouterLink, TransactionColorPipe, TransactionExchangePipe, TransactionPrefixPipe, TailwindClassApplier, NgxMaskPipe, Darkable, FormatDatePipe],
   template: `
     <app-card>
       <ng-container header>
         <div class="section-header flex justify-between items-center">
           <h3 class="text-base text-(color:--secondary) font-bold" appDarkable="dark:text-(color:--dm-secondary)">
-            Transações
+            Últimas transações
           </h3>
           <a [routerLink]="" class="text-(color:--secondary) flex gap-1 justify-center items-center text-sm font-medium"
           appDarkable="dark:text-(color:--dm-secondary)"
@@ -35,7 +35,7 @@ import { TransactionDependencies } from '@core/models/dependencies.model';
         @if(!isLoading()){
           <div class="transactions">
             @for (transaction of transactions(); track $index) {
-              <div class="item flex gap-2 justify-between items-stretch pt-4 not-[:last-child]:pb-4 not-[:last-child]:border-b not-[:last-child]:border-[#F2F2F2]">
+              <div class="item flex gap-2 justify-between items-stretch pt-4 not-[:last-child]:pb-4 not-[:last-child]:border-b not-[:last-child]:border-[#F2F2F2] dark:not-[:last-child]:border-[#F2F2F2]/10">
                 <div class="icon-container">
                   <div class="icon w-10 h-10 rounded-[0.625rem] flex justify-center items-center border border-black/12" appTailwindClassApplier [tailwindClassesArray]="['dark:border-white/12']">
                     @switch (transaction.type) {
@@ -60,40 +60,46 @@ import { TransactionDependencies } from '@core/models/dependencies.model';
                 <div class="main-details flex flex-col justify-between gap-1 w-[179px]">
                   <p class="description text-sm line-clamp-3" appDarkable="dark:text-(color:--dm-secondary)">{{ transaction.description }}</p>
                   <div class="targets flex gap-[0.625rem] justify-start items-center">
+
+                    @let origin_account_name = transaction.origin_id ? this.financeStoreViewModel.mappedAdaptedGoals()[transaction.origin_id!].account.name : 'Origem externa';
+                    @let destination_account_name = transaction.destination_id ? this.financeStoreViewModel.mappedAdaptedGoals()[transaction.destination_id!].account.name : 'Destino externo';
+                    @let origin_currency_code = transaction.origin_currency_id ? this.financeStore.mappedCurrencies()[transaction.origin_currency_id!].code : '';
+                    @let destination_currency_code = transaction.destination_currency_id ? this.financeStore.mappedCurrencies()[transaction.destination_currency_id!].code : '';
+
                     @switch (transaction.type) {
                       @case ('g2g') {
-                        <p class="origin text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.origin?.['account']?.name ?? 'Conta não identificada' }} </p>
+                        <p class="origin text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ origin_account_name }} </p>
                         <svg width="5" height="7" viewBox="0 0 5 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1 0.5L4 3.5L1 6.5" stroke="gray" stroke-opacity="0.8" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <p class="destination text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.destination?.['account']?.name ?? 'Conta não identificada' }} </p>
+                        <p class="destination text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ destination_account_name }} </p>
                       }
                       @case ('income') {
-                        <p class="source text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.destination?.['account']?.name ?? 'Conta não identificada' }} </p>
+                        <p class="source text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ destination_account_name }} </p>
                       }
                       @case ('outcome') {
-                        <p class="source text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.origin?.['account']?.name ?? 'Conta não identificada' }} </p>
+                        <p class="source text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ origin_account_name }} </p>
                       }
                     }
                   </div>
                 </div>
                 <div class="secondary-details flex flex-col justify-between items-end w-full max-w-[82px]">
                   <div class="currency flex gap-[5px] justify-end items-center">
-                    @if(transaction.origin_currency.code !== transaction.destination_currency.code) {
-                      <p class="origin text-xs font-medium text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.origin_currency.code }} </p>
+                    @if(origin_currency_code !== destination_currency_code && (origin_currency_code !== '' && destination_currency_code !== '')) {
+                      <p class="origin text-xs font-medium text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)"> {{ origin_currency_code }} </p>
                       <svg width="5" height="7" viewBox="0 0 5 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1 0.5L4 3.5L1 6.5" stroke="gray" stroke-opacity="0.8" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     }
-                    <p class="destination text-xs font-medium text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.destination_currency.code }} </p>
+                    <p class="destination text-xs font-medium text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)"> {{ destination_currency_code }} </p>
                   </div>
                   <div class="amount">
-                    <p class="text-xs font-bold" [style.color]="transaction | transactionColor: this.dependencies()">
-                      {{ transaction | transactionPrefix: this.dependencies() }}{{ transaction | transactionExchange: this.dependencies() | mask: 'separator.2' }}
+                    <p class="text-xs font-bold" [style.color]="transaction | transactionColor">
+                      {{ transaction | transactionPrefix }}{{ transaction | transactionExchange | mask: 'separator.2' }}
                     </p>
                   </div>
                   <div class="date">
-                    <p class="text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.date.short }} </p>
+                    <p class="text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)"> {{ transaction.date | formatDate }} </p>
                   </div>
                 </div>
               </div>
@@ -109,8 +115,13 @@ import { TransactionDependencies } from '@core/models/dependencies.model';
   `,
   styles: ``
 })
-export class TransactionsContainer {
+export class TransactionsContainer implements OnInit {
+  financeStore = inject(FinanceStore);
+  financeStoreViewModel = inject(FinanceStoreViewModel);
   isLoading = input.required<boolean>();
-  dependencies = input.required<TransactionDependencies>();
   transactions = input.required<BaseTransaction[]>();
+
+  ngOnInit(): void {
+    console.log(this.transactions())
+  }
 }

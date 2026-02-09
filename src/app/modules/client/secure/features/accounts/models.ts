@@ -1,16 +1,17 @@
 import { ISnapshotState } from "@core/interfaces/snapshot-state.interface";
-import { BaseAccount } from "@core/models/base-account.model";
-import { BaseGoal } from "@core/models/base-goal.model";
-import { BaseTransaction } from "@core/models/base-transaction.model";
+import { BaseAccount, BaseAccountViewModel } from "@core/models/base-account.model";
+import { BaseGoal, BaseGoalViewModel } from "@core/models/base-goal.model";
+import { BaseTransaction, BaseTransactionViewModel } from "@core/models/base-transaction.model";
 
 export interface AccountSnapshot {
-    accounts: Account[],
-    sharedAccounts: Account[],
+    accounts: AccountViewModel[],
+    sharedAccounts: AccountViewModel[],
 }
 
 export interface AccountState extends ISnapshotState{}
 export type AccountType = 'owner' | 'shared';
 
-export interface Account extends BaseAccount<AccountGoal> {}
-export interface AccountGoal extends BaseGoal<Account, AccountTransaction> {}
-export interface AccountTransaction extends BaseTransaction<AccountGoal> {}
+export interface AccountViewModel extends BaseAccountViewModel {}
+export interface AccountGoalViewModel extends BaseGoalViewModel {}
+export interface AccountTransactionViewModel extends BaseTransactionViewModel {}
+export interface AccountTransaction extends BaseTransaction {}

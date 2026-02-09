@@ -1,22 +1,52 @@
 import { inject, Injectable } from "@angular/core";
-import { AccountFacade } from "./account.facade";
-import { HttpSchema } from "@core/services/http-schema.service";
-import { Observable } from "rxjs";
-import { AccountSnapshot, AccountTransaction } from "./models";
+import { Observable, tap } from "rxjs";
 import { AccountSimulator } from "./simulator.service";
+import { BaseResourceService } from "@core/abstracts/base-resource.abstract";
+import { BaseAccount } from "@core/models/base-account.model";
+import { FinanceStore } from "@core/data/finance-store.data";
 
 Injectable({
-    providedIn: AccountFacade
+    providedIn: 'root'
 })
-export class AccountService{
+export class AccountService extends BaseResourceService<BaseAccount>{
     private simulator = inject(AccountSimulator);
-    private httpSchema = inject(HttpSchema);
+    private financeStore = inject(FinanceStore);
 
-    get snapshot(): Observable<AccountSnapshot>{
-        return this.simulator.data();
+    override getAll(): Observable<BaseAccount[]> {
+        // return super.getAll('/api/accounts').pipe(
+        return this.simulator.accounts().pipe(
+            tap(data => this.financeStore.loadAccounts(data))
+        );
     }
 
-    // transactionsByAccount(account_id: string): Observable<AccountTransaction[]>{
-    //     return this.simulator.transactionsByAccount(account_id);
-    // }
+    shared(): Observable<BaseAccount[]> {
+        // return super.getAll('/api/accounts/shared').pipe(
+        return this.simulator.shared().pipe(
+            tap(data => this.financeStore.loadSharedAccounts(data))
+        )
+    }
+
+    override create(resource: Omit<BaseAccount, 'id'>): Observable<BaseAccount> {
+        return super.create(resource, '/api/accounts/create').pipe(
+            tap(response => {
+                this.financeStore.addAccount(response);
+            })
+        );
+    }
+
+    override update(id: string, resource: Partial<BaseAccount>): Observable<BaseAccount> {
+        return super.update(id, resource, '/api/accounts/update').pipe(
+            tap(response => {
+                this.financeStore.updateLocalAccount(id, resource)
+            })
+        )
+    }
+
+    override delete(id: string): Observable<void> {
+        return super.delete(id, '/api/accounts/delete').pipe(
+            tap(response => {
+                this.financeStore.removeLocalAccount(id);
+            })
+        )
+    }
 }

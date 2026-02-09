@@ -1,19 +1,18 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, OnInit, output } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { ScrollerComponent } from "@shared/components/scroller.component";
 import { CardTemplate } from "@client/secure/ui/card.template";
 import { NgxMaskPipe } from 'ngx-mask';
-import { HtmlSanitizerPipe } from '@shared/pipes/html-sanitizer-pipe';
-import { DashboardAccount, DashboardGoal } from '../../models';
 import { Darkable } from '@shared/directives/darkable';
 import { TransactionColorPipe } from '@shared/pipes/transaction-color-pipe';
 import { TransactionExchangePipe } from '@shared/pipes/transaction-exchange-pipe';
 import { TransactionPrefixPipe } from '@shared/pipes/transaction-prefix-pipe';
-import { GoalDepencendies } from '@core/models/dependencies.model';
+import { DashboardGoalViewModel } from '../../models';
+import { IconUi } from "@shared/ui/icon/icon.ui";
 
 @Component({
   selector: 'app-dashboard-goals',
-  imports: [RouterLink, ScrollerComponent, CardTemplate, NgxMaskPipe, HtmlSanitizerPipe, Darkable, TransactionColorPipe, TransactionExchangePipe, TransactionPrefixPipe],
+  imports: [RouterLink, ScrollerComponent, CardTemplate, NgxMaskPipe, Darkable, TransactionColorPipe, TransactionExchangePipe, TransactionPrefixPipe, IconUi],
   template: `
     <div class="section-header w-full flex justify-between items-center mb-5">
       <h3 class="text-base text-(color:--secondary) font-medium" appDarkable="dark:text-(color:--dm-secondary)">
@@ -39,7 +38,8 @@ import { GoalDepencendies } from '@core/models/dependencies.model';
                     {{ item.name }}
                   </p>
                 </div>
-                <div class="icon p-1 rounded duration-[.3s]" [style.background-color]="item.account.settings.color" [innerHTML]="item.icon.embedded_svg | htmlSanitizer">
+                <div class="icon p-1 w-7 h-7 relative rounded duration-[.3s] text-white" [style.background-color]="item.account.color">
+                  <app-icon [key]="item.icon_key"></app-icon>
                 </div>
               </div>
             </ng-container>
@@ -47,17 +47,21 @@ import { GoalDepencendies } from '@core/models/dependencies.model';
               <div class="card-content flex flex-col gap-2">
                 <div class="details flex justify-between items-center">
                   <p class="text-xs font-medium uppercase duration-[.3s]"
-                  [style.color]="item.account.settings.color">
-                    {{ item.account.settings.currency.code }}
+                  [style.color]="item.account.color">
+                    {{ item.account.currency.code }}
                   </p>
-                  <p class="text-xs text-(color:--secondary)/60 capitalize" appDarkable="dark:text-(color:--dm-secondary)/70">
-                    Último movimento: 
-                    @let dependencies = { account: this.dependencies().account, goal: item };
-
-                    <span [style.color]="item.latest_transactions[0] | transactionColor: dependencies ">
-                    {{ item.latest_transactions[0] | transactionPrefix: dependencies }}{{ item.latest_transactions[0] | transactionExchange:dependencies | mask: 'separator.2' }}
-                    </span>
-                  </p>
+                  @if(item.last_transaction){
+                    <p class="text-xs text-(color:--secondary)/60 capitalize" appDarkable="dark:text-(color:--dm-secondary)/70">
+                      Último movimento:
+                      <span [style.color]="item.last_transaction | transactionColor ">
+                      {{ item.last_transaction | transactionPrefix }}{{ item.last_transaction | transactionExchange | mask: 'separator.2' }}
+                      </span>
+                    </p>
+                  } @else {
+                    <p class="text-xs text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/70">
+                      Sem transações registradas
+                    </p>
+                  }
                 </div>
                 <div class="progress">
                   <div class="numbers flex justify-between items-end">
@@ -65,9 +69,9 @@ import { GoalDepencendies } from '@core/models/dependencies.model';
                       <p
                       class="text-xl font-bold text-[#202020]/20"
                       >
-                      <!-- [style.color]="item.account.settings.color"
+                      <!-- [style.color]="item.account.color"
                       appDarkable="dark:text-(color:--dm-secondary)" -->
-                        <span class=" duration-[.3s]" [style.color]="item.account.settings.color">
+                        <span class=" duration-[.3s]" [style.color]="item.account.color">
                           {{ item.progress | mask: 'percent' : { suffix: '%' } }}
                         </span>
                       </p>
@@ -77,16 +81,16 @@ import { GoalDepencendies } from '@core/models/dependencies.model';
                       class=" text-[#202020]/60 duration-[.3s]"
                       appDarkable="dark:text-(color:--dm-secondary)"
                       >
-                        <span class="" [style.color]="item.account.settings.color">
-                          {{ item.amount | mask: 'separator.2' }}
+                        <span class="" [style.color]="item.account.color">
+                          {{ item.current_amount | mask: 'separator.2' }}
                         </span>
-                        / {{ item.achievement | mask: 'separator.2' }}
+                        / {{ item.target_amount | mask: 'separator.2' }}
                       </p>
                     </div>
                   </div>
                   <div class="progress-track mt-2">
                     <div class="thumb bg-[#F2F2F2] rounded-full w-full h-2 overflow-hidden">
-                      <div class="tracker h-full duration-[.3s]" [style.max-width.%]="item.progress" [style.background-color]="item.account.settings.color"></div>
+                      <div class="tracker h-full duration-[.3s]" [style.max-width.%]="item.progress" [style.background-color]="item.account.color"></div>
                     </div>
                   </div>
                 </div>
@@ -94,7 +98,7 @@ import { GoalDepencendies } from '@core/models/dependencies.model';
             </ng-container>
             <ng-container foot>
               <div class="ctas flex gap-[0.625rem] flex-wrap justify-start items-center">
-                <a href="" class="text-sm flex gap-1 justify-center items-center text-white rounded-full px-2 py-2 duration-[.3s]" [style.background-color]="item.account.settings.color">
+                <a href="" class="text-sm flex gap-1 justify-center items-center text-white rounded-full px-2 py-2 duration-[.3s]" [style.background-color]="item.account.color">
                   <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.5 12.0001H12.5M12.5 12.0001H16.5M12.5 12.0001V16.0001M12.5 12.0001V8.0001M12.5 21.0001C7.52944 21.0001 3.5 16.9707 3.5 12.0001C3.5 7.02954 7.52944 3.0001 12.5 3.0001C17.4706 3.0001 21.5 7.02954 21.5 12.0001C21.5 16.9707 17.4706 21.0001 12.5 21.0001Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
@@ -116,14 +120,17 @@ import { GoalDepencendies } from '@core/models/dependencies.model';
   `,
   styles: ``
 })
-export class GoalsComponent {
+export class GoalsComponent implements OnInit {
   isLoading = input.required<boolean>();
-  dependencies = input.required<GoalDepencendies>();
-  goals = input.required<DashboardGoal[]>();
+  goals = input.required<DashboardGoalViewModel[]>();
 
   activeGoalEmitter = output<number>();
 
   updateActiveGoal(index: number): void {
     this.activeGoalEmitter.emit(index);
+  }
+
+  ngOnInit(): void {
+    console.log(this.goals())
   }
 }
