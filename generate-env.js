@@ -14,9 +14,9 @@ if (!fs.existsSync(envDir)) {
 const envContent = `
 export const environment = {
   production: true,
-  server: '${process.env['SERVER_URL'] || process.env['server'] || 'http://localhost:8000'}',
-  supabaseUrl: '${process.env['SUPABASE_URL'] || 'https://xyz.supabase.co'}',
-  supabaseAnonKey: '${process.env['SUPABASE_ANON_KEY'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'}'
+  server: '${process.env['server'] || 'http://localhost:8000'}',
+  supabaseUrl: '${process.env['supabaseUrl'] || 'https://xyz.supabase.co'}',
+  supabaseAnonKey: '${process.env['supabaseAnonKey'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'}'
 };
 `;
 
