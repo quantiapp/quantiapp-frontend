@@ -1,14 +1,14 @@
 import { Component, input } from '@angular/core';
 import { DialogComponent } from "@shared/components/dialog.component";
-import { NgxMaskPipe } from 'ngx-mask';
 import { SubmitableButton } from "@shared/directives/submitable-button";
 import { Darkable } from "@shared/directives/darkable";
 import { CardTemplate } from '@client/secure/ui/card.template';
 import { DashboardSummary } from '../../models';
+import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
 
 @Component({
   selector: 'app-total-balance',
-  imports: [CardTemplate, DialogComponent, NgxMaskPipe, SubmitableButton, Darkable],
+  imports: [CardTemplate, DialogComponent, SubmitableButton, Darkable, CustomCurrencyPipe],
   template: `
     <app-card>
       <ng-container header>
@@ -49,7 +49,7 @@ import { DashboardSummary } from '../../models';
                       @for (conversion of summary().exchanges.conversions; track $index) {
                         <div class="exchange flex justify-between items-center">
                           <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">1 {{ conversion.from }}</p>
-                          <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ conversion.value | mask: 'separator.6' }}</p>
+                          <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ conversion.value | money: '1.0-6' }}</p>
                         </div>
                       } @empty {
                         <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">Sem dados</p>
@@ -73,7 +73,7 @@ import { DashboardSummary } from '../../models';
       <ng-container content>
         <div class="card-content">
           <p class="text-[1.688rem] font-bold text-(color:--secondary) text-shadow-[0px_3px_4px_rgba(0,0,0,0.12)]" appDarkable="dark:text-(color:--dm-secondary)">
-            {{ summary().exchanges.user_currency.code }} {{ summary().total_balance | mask: 'separator.2' }}
+            {{ summary().exchanges.user_currency.code }} {{ summary().total_balance | money }}
           </p>
         </div>
       </ng-container>

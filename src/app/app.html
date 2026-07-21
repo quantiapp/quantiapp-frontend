@@ -1,5 +1,8 @@
 @if(isResolving()){
     <app-loading-data></app-loading-data>
 } @else {
+    <div class="popup-container z-115 w-full fixed pt-5 left-[50%] translate-x-[-50%]">
+        <q-popup></q-popup>
+    </div>
     <router-outlet></router-outlet>
 }

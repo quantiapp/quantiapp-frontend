@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, WritableSignal, signal, afterNextRender, computed, Signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, Signal } from '@angular/core';
 import { HeaderPartial } from "@core/partials/client/secure/header.partial";
 import { Darkable } from "@shared/directives/darkable";
 import { TotalBalanceComponent } from './components/total-balance/total-balance.component';
@@ -54,22 +54,19 @@ export class DashboardPage implements OnInit {
   
   summary: Signal<DashboardSummary> = computed(() => this.financeStoreViewModel.dashboardSummary());
   accounts = computed(() => this.financeStoreViewModel.accountsWithBalances());
-  goals = computed(() => this.financeStoreViewModel.goalsByAccount(
-    this.accounts()[this.activeAccount()].id
-  ));
+  goals = computed(() => {
+    const accList = this.accounts();
+    const activeIdx = this.activeAccount();
+    const currentAcc = accList?.[activeIdx] || accList?.[0];
+    if (!currentAcc?.id) return [];
+    return this.financeStoreViewModel.goalsByAccountIdMap()[currentAcc.id] || [];
+  });
   transactions = computed(() => this.financeStore.latest_transactions());
 
-  ngOnInit(): void {
-    
-  }
+  ngOnInit(): void {}
 
   updateActiveAccount(index: number): void {
     this.activeGoal.set(0);
     this.activeAccount.set(index);
   }
-
-  // updateActiveGoal(index: number): void {
-  //   this.facade.isLoadingTransactions.set(true);
-  // }
-
 }

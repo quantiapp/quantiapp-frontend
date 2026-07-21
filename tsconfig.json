@@ -21,6 +21,7 @@
       "@admin/*": [ "app/modules/admin/*" ],
       "@client/*": [ "app/modules/client/*" ],
       "@web/*": [ "app/modules/web/*" ],
+      "@environments/*": [ "environments/*" ]
     }
   },
   "angularCompilerOptions": {

@@ -1,0 +1,1 @@
+export type BaseOmitResource<T, K extends keyof any = 'id'> = Omit<T, K>;

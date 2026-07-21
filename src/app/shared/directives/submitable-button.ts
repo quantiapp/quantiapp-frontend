@@ -19,6 +19,10 @@ export class SubmitableButton implements OnInit {
   ngOnInit(): void {
     this.renderer2.addClass(this.element.nativeElement, this.tailwindClassBackgroundColor());
     this.renderer2.addClass(this.element.nativeElement, this.tailwindClassShadowColor());
+    this.renderer2.addClass(this.element.nativeElement, 'disabled:cursor-auto');
+    this.renderer2.addClass(this.element.nativeElement, 'disabled:opacity-60');
+    this.renderer2.addClass(this.element.nativeElement, 'duration-150');
+    this.renderer2.addClass(this.element.nativeElement, 'min-w-[76px]');
   }
 
 }

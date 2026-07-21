@@ -10,12 +10,11 @@ export class TransactionExchangePipe implements PipeTransform {
   private financeStore = inject(FinanceStore);
 
   transform(transaction: BaseTransaction | BaseLastTransaction): number {
+    if(!transaction.source || !transaction.destination) return transaction.amount;
+    if(this.financeStore.currenciesMap()[transaction.source.currency_id!].code === this.financeStore.currenciesMap()[transaction.destination.currency_id!].code) return transaction.amount;
 
-    if(!transaction.origin_id || !transaction.destination_id) return transaction.amount;
-    if(this.financeStore.mappedCurrencies()[transaction.origin_currency_id!].code === this.financeStore.mappedCurrencies()[transaction.destination_currency_id!].code) return transaction.amount;
-
-    const valueInBaseCurrency = transaction.amount / transaction.origin_rate_to_base;
-    const converted = valueInBaseCurrency * transaction.destination_rate_to_base;
+    const valueInBaseCurrency = transaction.amount / transaction.source.rate_to_base;
+    const converted = valueInBaseCurrency * transaction.destination.rate_to_base;
 
     return converted;
   }

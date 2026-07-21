@@ -8,78 +8,65 @@ import { FacadeDispatchableAction } from "@core/interfaces/facade-dispatchable-a
 import { AccountTypeService } from "@core/services/account-type.service";
 import { CurrencyService } from "@core/services/currency.service";
 import { UserService } from "@core/services/user.service";
-import { Observable, of, forkJoin, finalize } from "rxjs";
+import { HttpSchema } from "@core/services/http-schema.service";
+import { Observable, of, finalize, catchError, tap } from "rxjs";
 
 @Directive()
 export abstract class BaseActionFacade implements FacadeDispatchableAction {
 
-    private accountService = inject(AccountService);
-    private goalService = inject(GoalService);
-    private transactionService = inject(TransactionService);
-    private currencyService = inject(CurrencyService);
-    private accountTypeService = inject(AccountTypeService);
-    private userService = inject(UserService);
+    protected accountService = inject(AccountService);
+    protected goalService = inject(GoalService);
+    protected transactionService = inject(TransactionService);
+    protected currencyService = inject(CurrencyService);
+    protected accountTypeService = inject(AccountTypeService);
+    protected userService = inject(UserService);
+    protected httpSchema = inject(HttpSchema);
 
-    private financeStore = inject(FinanceStore);
-    private userStore = inject(UserStore);
+    protected financeStore = inject(FinanceStore);
+    protected userStore = inject(UserStore);
 
     isLoadingAccount = signal(false);
     isLoadingGoals = signal(false);
     isLoadingTransactions = signal(false);
 
-    action(): Observable<any> {
-        this.isLoadingAccount.set(true);
-        this.isLoadingGoals.set(true);
-        this.isLoadingTransactions.set(true);
-        
-        let callers: Observable<any>[] = [];
-
-        if(!(this.userStore.user())){
-           callers.push(this.userService.getUser());
-           callers.push(this.userService.getUserSettings())
+    action(deps?: any): Observable<any> {
+        if (this.ignoreAction()) {
+            return of(true);
         }
 
-        if(!(this.financeStore.accounts().length > 0)) {
-            callers.push(this.accountService.getAll());
-        }
+        this.isLoadingAccount.set(!this.financeStore.isAccountsLoaded());
+        this.isLoadingGoals.set(!this.financeStore.isGoalsLoaded());
+        this.isLoadingTransactions.set(!this.financeStore.isLatestTransactionsLoaded());
 
-        if(!(this.financeStore.shared_accounts().length > 0)) {
-            callers.push(this.accountService.shared());
-        }
+        return this.httpSchema.get<any>('api/bootstrap').pipe(
+            tap(data => {
+                if (data) {
+                    if (data.profile) this.userStore.loadUser(data.profile);
+                    if (data.settings) this.userStore.loadSettings(data.settings);
 
-        if(!(this.financeStore.currencies().length > 0)) {
-            callers.push(this.currencyService.getAll())
-        }
-
-        if(!(this.financeStore.accountTypes().length > 0)){
-            callers.push(this.accountTypeService.getAll())
-        }
-
-        if(!(this.financeStore.goals().length > 0)) {
-            callers.push(this.goalService.getAll());
-        }
-
-        if(!(this.financeStore.latest_transactions().length > 0)) {
-            callers.push(this.transactionService.latest(5));
-        }
-
-        if(!(callers.length > 0)) return of();
-        
-        return forkJoin(callers).pipe(
+                    if (data.currencies) this.financeStore.loadCurrencies(data.currencies);
+                    if (data.account_types) this.financeStore.loadAccountTypes(data.account_types);
+                    if (data.accounts) this.financeStore.loadAccounts(data.accounts);
+                    if (data.shared_accounts) this.financeStore.loadSharedAccounts(data.shared_accounts);
+                    if (data.goals) this.financeStore.loadGoals(data.goals);
+                    if (data.latest_transactions) this.financeStore.loadLatestTransactions(data.latest_transactions);
+                }
+            }),
+            catchError(() => of(null)),
             finalize(() => {
                 this.isLoadingAccount.set(false);
                 this.isLoadingGoals.set(false);
                 this.isLoadingTransactions.set(false);
             })
-        )
+        );
     }
 
-    ignoreAction(): boolean {
-        return  this.userStore.user() !== null &&
-                this.userStore.settings() !== null &&
-                this.financeStore.accounts().length > 0 &&
-                this.financeStore.goals().length > 0 &&
-                this.financeStore.latest_transactions().length > 0;
+    ignoreAction(deps?: any): boolean {
+        return  this.userStore.isUserLoaded() &&
+                this.userStore.isSettingsLoaded() &&
+                this.financeStore.isAccountsLoaded() &&
+                this.financeStore.isGoalsLoaded() &&
+                this.financeStore.isLatestTransactionsLoaded();
     }
 
 }

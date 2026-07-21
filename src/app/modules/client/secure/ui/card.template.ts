@@ -7,7 +7,7 @@ import { Darkable } from "@shared/directives/darkable";
   imports: [TailwindClassApplier, Darkable],
   template: `
     <div class="card-template bg-white rounded-[1.25rem] p-4 w-full flex flex-col gap-4"
-    appDarkable="dark:bg-(color:--secondary)/70"
+    appDarkable="dark:bg-(color:--secondary)/60"
     appTailwindClassApplier
     [tailwindClassesArray]="tailwindClassesArray()">
       <div class="card-header">
@@ -21,7 +21,14 @@ import { Darkable } from "@shared/directives/darkable";
       </div>
     </div>
   `,
-  styles: ``
+  styles: `
+  .card-header:not(:has(*)),
+  .content:not(:has(*)),
+  .foot:not(:has(*))
+  {
+    display: none;
+  }
+  `
 })
 export class CardTemplate {
   tailwindClassesArray = input<string[]>([]);

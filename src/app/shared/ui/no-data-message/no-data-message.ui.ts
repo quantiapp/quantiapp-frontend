@@ -1,19 +1,28 @@
 import { Component } from '@angular/core';
+import { Darkable } from '@shared/directives/darkable';
 
 @Component({
   selector: 'no-data-message',
-  imports: [],
+  imports: [Darkable],
   template: `
   <ng-content select="[message]">
-    <div class="empty w-full flex gap-3 justify-center items-center">
-      <svg width="18" height="23" viewBox="0 0 18 23" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17 11.5V18.0625C17 20.2372 13.4183 22 9 22C4.58172 22 1 20.2372 1 18.0625V11.5M17 11.5V4.9375M17 11.5C17 13.6747 13.4183 15.4375 9 15.4375C4.58172 15.4375 1 13.6747 1 11.5M1 11.5V4.9375M17 4.9375C17 2.76288 13.4183 1 9 1C4.58172 1 1 2.76288 1 4.9375M17 4.9375C17 7.11212 13.4183 8.875 9 8.875C4.58172 8.875 1 7.11212 1 4.9375" stroke="#ACACAC" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <p class="text-[#ACACAC] text-sm">Sem informações disponíveis</p>
+    <div class="empty w-full flex flex-col gap-2 justify-center items-center py-6 text-center">
+      <div class="text-(--secondary)/40" appDarkable="dark:text-(--dm-secondary)/40">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+      </div>
+      <p class="text-(--secondary)/60 text-sm font-medium" appDarkable="dark:text-(--dm-secondary)/60">Nenhum registo disponível</p>
     </div>
   </ng-content>
   `,
-  styles: ``
+  styles: `
+    :host {
+      display: block;
+      width: 100%;
+    }
+  `
 })
 export class NoDataMessageUi {
 

@@ -9,8 +9,8 @@ export class FormatDatePipe implements PipeTransform {
 
   private userStore = inject(UserStore);
 
-  transform(date: string): string {
-    return formatDate(date, this.userStore.settings()?.locale)
+  transform(date: string, monthLength?: "numeric" | "2-digit" | "long" | "short" | "narrow"): string {
+    return formatDate(date, this.userStore.settings()?.locale, monthLength)
   }
 
 }

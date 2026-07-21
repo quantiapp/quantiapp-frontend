@@ -9,7 +9,7 @@ import { FinanceStore } from '@core/data/finance-store.data';
 import { Darkable } from "@shared/directives/darkable";
 
 @Component({
-  selector: 'app-card',
+  selector: 'app-account',
   imports: [HeaderPartial, MyAccounts, SharedAccounts, Transactions, Darkable],
   template: `
     <div class="section-container py-8 flex flex-col min-h-screen gap-6 limited-container">
