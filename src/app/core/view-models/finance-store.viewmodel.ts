@@ -2,9 +2,8 @@ import { computed, inject, Injectable, Signal } from "@angular/core";
 import { Conversion, DashboardSummary } from "@client/secure/features/dashboard/models";
 import { FinanceStore } from "@core/data/finance-store.data";
 import { UserStore } from "@core/data/user-store.data";
-import { BaseAccountViewModel } from "@core/models/base-account.model";
+import { AccountShare, BaseAccountViewModel } from "@core/models/base-account.model";
 import { BaseGoalViewModel } from "@core/models/base-goal.model";
-import { BaseTransactionViewModel } from "@core/models/base-transaction.model";
 
 @Injectable({
     providedIn: 'root'
@@ -15,26 +14,31 @@ export class FinanceStoreViewModel {
     private userStore = inject(UserStore);
 
     dashboardSummary: Signal<DashboardSummary> = computed(() => {
-        const user_currency = this.financeStore.mappedCurrencies()[this.userStore.settings()!.currency_id];
+        const settings = this.userStore.settings();
+        const currId = settings?.currency_id || 'curr_aoa';
+        const currenciesMap = this.financeStore.currenciesMap();
+        const user_currency = currenciesMap[currId] || { id: 'curr_aoa', code: 'AOA', name: 'Kwanza', is_base: true, rate_to_base: 1 };
 
         let totalBalance: number = this.accountsWithBalances().reduce((value, account) => {
-            const valueInBaseCurrency = account.balance / account.currency.rate_to_base;
-            const coverted = valueInBaseCurrency * user_currency.rate_to_base;
+            const accRate = account.currency?.rate_to_base || 1;
+            const valueInBaseCurrency = account.balance / accRate;
+            const coverted = valueInBaseCurrency * (user_currency.rate_to_base || 1);
 
-            if(account.currency.code === user_currency.code){
+            if (account.currency?.code === user_currency.code) {
                 return value + account.balance;
             }
             return Math.round((value + coverted) * 100) / 100;
-        }, 0)
+        }, 0);
 
-        let currencies_by_accounts: string[] = this.financeStore.accounts().map(account => account.currency_id).filter(curr => curr !== user_currency.id);
+        let currencies_by_accounts: string[] = this.financeStore.accounts().map(account => account.currency_id).filter(curr => curr && curr !== user_currency.id);
         currencies_by_accounts = [...new Set(currencies_by_accounts)];
         
         let conversions: Conversion[] = currencies_by_accounts.map(c_id => {
+            const cObj = currenciesMap[c_id];
             return {
-                from: this.financeStore.mappedCurrencies()[c_id].code,
-                value: user_currency.rate_to_base / this.financeStore.mappedCurrencies()[c_id].rate_to_base
-            }
+                from: cObj?.code || c_id,
+                value: cObj?.rate_to_base ? ((user_currency.rate_to_base || 1) / cObj.rate_to_base) : 1
+            };
         });
 
         return {
@@ -43,7 +47,7 @@ export class FinanceStoreViewModel {
                 user_currency,
                 conversions
             }
-        }
+        };
     });
 
     accountsWithBalances: Signal<BaseAccountViewModel[]> = computed(() => {
@@ -52,16 +56,21 @@ export class FinanceStoreViewModel {
             can_see_balance: true,
             can_see_goals: true,
             can_see_transactions: true,
-            account_type: this.financeStore.mappedAccountTypes()[account.account_type_id],
+            income_transaction: true,
+            outcome_transaction: true,
+            account_type: this.financeStore.accountTypesMap()[account.account_type_id],
             balance: this.financeStore.goals().filter(g => g.account_id === account.id).reduce((value, goal) => goal.current_amount + value, 0),
-            currency: this.financeStore.mappedCurrencies()[account.currency_id]
+            currency: this.financeStore.currenciesMap()[account.currency_id]
         }));
     });
-    mappedAdaptedAccount: Signal<Record<string, BaseAccountViewModel>> = computed(() => {
+
+    ownedAccountsMap: Signal<Record<string, BaseAccountViewModel>> = computed(() => {
         const map: Record<string, BaseAccountViewModel> = {};
         this.accountsWithBalances().forEach(ele => {
-            map[ele.id] = ele;
-        })
+            if (ele?.id) {
+                map[ele.id] = ele;
+            }
+        });
         return map;
     });
 
@@ -71,43 +80,63 @@ export class FinanceStoreViewModel {
             can_see_balance: account.permissions?.can_see_amount ?? true,
             can_see_goals: account.permissions?.can_see_goals ?? true,
             can_see_transactions: account.permissions?.can_see_transactions ?? true,
-            account_type: this.financeStore.mappedAccountTypes()[account.account_type_id],
-            currency: this.financeStore.mappedCurrencies()[account.currency_id]
+            income_transaction: account.permissions?.income_transaction ?? true,
+            outcome_transaction: account.permissions?.outcome_transaction ?? true,
+            account_type: this.financeStore.accountTypesMap()[account.account_type_id],
+            currency: this.financeStore.currenciesMap()[account.currency_id]
         }));
     });
 
-    goalsWithAccounts: Signal<BaseGoalViewModel[]> = computed(() => {
+    sharedAccountsMap: Signal<Record<string, BaseAccountViewModel>> = computed(() => {
+        const map: Record<string, BaseAccountViewModel> = {};
+        this.sharedAccounts().forEach(ele => {
+            if (ele?.id) {
+                map[ele.id] = ele;
+            }
+        });
+        return map;
+    });
 
+    accountShare: Signal<AccountShare> = computed(() => this.financeStore.accountShare());
+
+    goals: Signal<BaseGoalViewModel[]> = computed(() => {
         const goals = this.financeStore.goals();
-        const accountsMap = this.mappedAdaptedAccount();
+        const accountsMap = this.ownedAccountsMap();
+        const sharedAccountsMap = this.sharedAccountsMap();
 
         return goals.map(goal => ({
             ...goal,
-            progress: (goal.current_amount * 100)/goal.target_amount,
-            account: accountsMap[goal.account_id] || null
-        }))
+            excess_amount: goal.current_amount - goal.target_amount,
+            progress: goal.target_amount > 0 ? (goal.current_amount * 100) / goal.target_amount : 0,
+            account: accountsMap[goal.account_id] || sharedAccountsMap[goal.account_id] || null
+        }));
     });
-    mappedAdaptedGoals: Signal<Record<string, BaseGoalViewModel>> = computed(() => {
+
+    goalsMap: Signal<Record<string, BaseGoalViewModel>> = computed(() => {
         const map: Record<string, BaseGoalViewModel> = {};
-        this.goalsWithAccounts().forEach(ele => {
-            map[ele.id] = ele;
+        this.goals().forEach(ele => {
+            if (ele?.id) {
+                map[ele.id] = ele;
+            }
+        });
+        return map;
+    });
+
+    goalsByAccountIdMap: Signal<Record<string, BaseGoalViewModel[]>> = computed(() => {
+        const map: Record<string, BaseGoalViewModel[]> = {};
+        this.goals().forEach(goal => {
+            const accountId = goal.account?.id;
+            if (accountId) {
+                if (!map[accountId]) {
+                    map[accountId] = [];
+                }
+                map[accountId].push(goal);
+            }
         });
         return map;
     });
 
     goalsByAccount(account_id: string): BaseGoalViewModel[] {
-        return this.goalsWithAccounts().filter(g => g.account.id === account_id);
-    };
-
-    transactionsWithGoals: Signal<BaseTransactionViewModel[]> = computed((() => {
-        return this.financeStore.transactions().map(tx => ({
-            ...tx,
-            origin: tx.origin_id ? this.mappedAdaptedGoals()[tx.origin_id] : null,
-            destination: tx.destination_id ? this.mappedAdaptedGoals()[tx.destination_id] : null,
-            origin_currency: tx.origin_currency_id ? this.financeStore.mappedCurrencies()[tx.origin_currency_id] : null,
-            destination_currency: tx.destination_currency_id ? this.financeStore.mappedCurrencies()[tx.destination_currency_id] : null,
-        }
-        ))
-    }));
-
+        return this.goals().filter(g => g.account?.id === account_id);
+    }
 }

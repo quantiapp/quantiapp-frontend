@@ -1,6 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+html.dark,
+body.dark,
+html.dark body {
+    background-color: var(--dm-bg, #373737);
+    color: var(--dm-secondary, #ffffff);
+}
+
 @font-face {
     font-family: 'space-grotesk';
     src: url('/fonts/space-grotesk/variable-font.ttf');
@@ -22,7 +31,7 @@
     --breakpoint-xl-1920: 1920px;
     --breakpoint-6xl: 2050px;
 
-    /* 1. Cores personalizadas */
+    /* 1. Cores personalizadas para a tela de carregamento das informações */
     --color-primary: #F1C40F;
     --color-background-light: #F8FAFC;
     --color-background-dark: #0F172A;
@@ -31,17 +40,65 @@
     --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     --animate-progress: progress 2s ease-in-out infinite;
     --animate-shimmer: shimmer 2s infinite;
+    
+    --animate-popup-in: popup-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    --animate-popup-out: popup-out 0.3s ease-in;
 
     /* 4. Keyframes */
     @keyframes progress {
-        0% { width: 0%; left: 0%; }
-        50% { width: 30%; left: 35%; }
-        100% { width: 0%; left: 100%; }
+        0% { width: 0%; transform: translateX(-100%); }
+        50% { width: 30%; transform: translateX(320%); }
+        100% { width: 0%; transform: translateX(400%); }
     }
     
     @keyframes shimmer {
         100% { transform: translateX(100%); }
     }
+
+    @keyframes popup-in {
+        0% { opacity: 0; transform: translateY(-20px) scale(0.95); height: 0; margin-top: 0; margin-bottom: 0; padding: 0  }
+        100% { opacity: 1; transform: translateY(0) scale(1); height: '*'; margin-top: '*'; margin-bottom: '*'; padding: '*' }
+    }
+
+    @keyframes popup-out {
+        0% { opacity: 1; transform: translateY(0) scale(1) }
+        100% { opacity: 0; transform: translateY(-20px) scale(0.95); height: 0; margin: 0; padding: 0 }
+    }
+}
+
+@layer utilities {
+  .skeleton {
+    @apply relative overflow-hidden bg-slate-200 dark:bg-slate-800 rounded;
+  }
+
+  /* Este pseudo-elemento é que cria o brilho que passa */
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full;
+    background-image: linear-gradient(
+      90deg,
+      transparent 0,
+      rgba(255, 255, 255, 0.4) 20%,
+      rgba(255, 255, 255, 0.7) 60%,
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  /* Ajuste para Dark Mode */
+  :is(.dark .skeleton)::after {
+    background-image: linear-gradient(
+      90deg,
+      transparent 0,
+      rgba(255, 255, 255, 0.05) 20%,
+      rgba(255, 255, 255, 0.1) 60%,
+      transparent
+    );
+  }
+
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
 }
 
 :root{
@@ -76,10 +133,13 @@
     transition: color .258s ease-in-out;
 }
 
-@media (prefers-color-scheme: dark) {
-    .darkmode-enabled > svg path {
-        stroke: var(--dm-secondary);
-    }
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched{
+    border-color: red;
+}
+
+.dark .darkmode-enabled > svg path {
+    stroke: var(--dm-secondary);
 }
 
 /* xl */

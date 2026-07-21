@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Directive, inject, Injectable } from "@angular/core";
-import { catchError, Observable, of } from "rxjs";
-import { Snapshot } from "./snapshot.service";
+import { inject, Injectable } from "@angular/core";
+import { catchError, Observable, of, throwError } from "rxjs";
 import { environment } from "environments/environment";
+import { PopupService } from "./pop-up.service";
 
 @Injectable({
     providedIn: 'root'
@@ -12,14 +12,19 @@ export class HttpSchema {
     private http = inject(HttpClient);
 
     private headers: HttpHeaders = new HttpHeaders({
-        'Authorization': 'Bearer '
+        'Authorization': 'Bearer token'
     });
         
     get<T>(uri: string, options?: any): Observable<T>{
-        const hdrs = (options.headers) ? this.appendOrReplaceHeaders(options.headers) : this.headers;
+        const hdrs = (options?.headers) ? this.appendOrReplaceHeaders(options?.headers) : this.headers;
 
-        return this.http.get<T>(`${ options.url ?? environment.server }/${ uri }`, { headers: hdrs })
-        .pipe();
+        return this.http.get<T>(`${ options?.url ?? environment.server }/${ uri }`, { headers: hdrs })
+        .pipe(
+            catchError(error => {
+                this.connectionError(error);
+                return throwError(() => error)
+            })
+        );
     }
 
     post<T>(uri: string, body: any, options?: any ): Observable<T>{
@@ -28,15 +33,15 @@ export class HttpSchema {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PUT',
             'Content-Type': 'text/json',
-            ...(options.headers instanceof HttpHeaders ? this.headersToObject(options.headers) : options.headers)
+            ...(options?.headers instanceof HttpHeaders ? this.headersToObject(options?.headers) : options?.headers)
         });
 
         console.log("Estes são os headers para o meu url: [POST] " + uri, localHeaders);
-        return this.http.post<T>(`${ options.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
+        return this.http.post<T>(`${ options?.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
         .pipe(
             catchError(error => {
                 this.connectionError(error);
-                return of(null as T)
+                return throwError(() => error)
             })
         )
     }
@@ -46,15 +51,15 @@ export class HttpSchema {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PUT',
             'Content-Type': 'text/json',
-            ...(options.headers instanceof HttpHeaders ? this.headersToObject(options.headers) : options.headers)
+            ...(options?.headers instanceof HttpHeaders ? this.headersToObject(options?.headers) : options?.headers)
         });
 
         console.log("Estes são os headers para o meu url: [PUT] " + uri, localHeaders);
-        return this.http.put<T>(`${ options.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
+        return this.http.put<T>(`${ options?.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
         .pipe(
             catchError(error => {
                 this.connectionError(error);
-                return of(null as T)
+                return throwError(() => error)
             })
         )
     }
@@ -64,15 +69,15 @@ export class HttpSchema {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PUT',
             'Content-Type': 'text/json',
-            ...(options.headers instanceof HttpHeaders ? this.headersToObject(options.headers) : options.headers)
+            ...(options?.headers instanceof HttpHeaders ? this.headersToObject(options?.headers) : options?.headers)
         });
 
         console.log("Estes são os headers para o meu url: [PUT] " + uri, localHeaders);
-        return this.http.patch<T>(`${ options.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
+        return this.http.patch<T>(`${ options?.url ?? environment.server }/${ uri }`, body, { headers: localHeaders })
         .pipe(
             catchError(error => {
                 this.connectionError(error);
-                return of(null as T)
+                return throwError(() => error)
             })
         )
     }
@@ -82,7 +87,7 @@ export class HttpSchema {
         .pipe(
             catchError(error => {
                 this.connectionError(error);
-                return of(null as T)
+                return throwError(() => error)
             })
         )
     }
@@ -106,7 +111,7 @@ export class HttpSchema {
 
     private connectionError(error: any): void{
         if(error.status === 0){
-            // this.alertService.add("Não é possível manter a comunicação com o servidor", LogStatus.ERROR)
+            PopupService.error("Não é possível manter a comunicação com o servidor");
         }
     }
 }

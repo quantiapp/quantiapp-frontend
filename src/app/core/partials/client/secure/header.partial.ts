@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   template: `
     <header class="flex justify-between items-center">
       <div class="logo w-[3.438rem] h-[3.438rem] rounded-full">
-        <a routerLink="/account/dashboard">
+        <a routerLink="/secure/dashboard">
           <img src="/static/primary-brand.svg" class="w-full h-full" alt="Quantiapp logo">
         </a>
       </div>

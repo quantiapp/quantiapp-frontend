@@ -12,6 +12,11 @@ export class GoalSimulator extends Mockery {
         return this.convertToObservable(this.MOCK_GOALS);
     }
 
+    goalsBySharedAccount(accountId: string): Observable<BaseGoal[]> {
+        const goals = this.MOCK_SHARED_GOALS.filter(goal => goal.account_id === accountId);
+        return this.convertToObservable(goals);
+    }
+
     private convertToObservable(data: BaseGoal[]): Observable<BaseGoal[]> {
         return of(data).pipe(delay(2000));
     }

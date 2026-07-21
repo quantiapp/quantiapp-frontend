@@ -1,22 +1,20 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Directive, inject, input, OnChanges, OnInit, PLATFORM_ID, SimpleChanges } from '@angular/core';
+import { Directive, effect, inject, input, PLATFORM_ID } from '@angular/core';
 
 @Directive({
   selector: '[appBodyElementOverflower]'
 })
-export class BodyElementOverflower implements OnInit, OnChanges {
+export class BodyElementOverflower {
 
   limitBody = input.required<boolean>();
   element = input<string>('body');
 
   platformId = inject(PLATFORM_ID);
-  
-  ngOnInit(): void {
-    
-  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.limitBodyElement();
+  constructor() {
+    effect(() => {
+      this.limitBodyElement();
+    });
   }
 
   limitBodyElement(): void{

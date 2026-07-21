@@ -1,5 +1,5 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, inject, input, output, PLATFORM_ID, signal, TemplateRef } from '@angular/core';
+import { Component, contentChild, effect, inject, input, model, output, PLATFORM_ID, signal, TemplateRef } from '@angular/core';
 import { BodyElementOverflower } from "@shared/directives/body-element-overflower";
 import { Darkable } from "@shared/directives/darkable";
 
@@ -11,7 +11,7 @@ import { Darkable } from "@shared/directives/darkable";
     <ng-container *ngTemplateOutlet="invokerElement(); context: invokerTemplateContext"></ng-container>
 
     <section class="dialog" appBodyElementOverflower [limitBody]="this.visible()">
-      <div class="dialog-overlay fixed top-0 left-0 w-full h-full bg-black/62 z-[110]"
+      <div class="dialog-overlay fixed top-0 left-0 w-full h-full backdrop-blur-[10px] bg-black/62 z-[110]"
       [ngClass]="{
         'hidden': !this.visible() && this.firstTime(),
         'disappear': (!this.visible() && !this.firstTime()),
@@ -25,7 +25,7 @@ import { Darkable } from "@shared/directives/darkable";
         'zoom-out': (!this.visible() && !this.firstTime()),
         'zoom-in': this.visible
       }"
-      class="q-panel fixed bg-white rounded-2xl z-[111] w-full left-[50%] top-[50%] -translate-[50%] max-w-[325px]"
+      class="q-panel fixed bg-white rounded-2xl z-[111] w-full left-[50%] top-[50%] -translate-[50%] max-w-[325px] max-h-[80vh] overflow-y-auto"
        appDarkable="dark:bg-(color:--secondary)"
       >
          <ng-container *ngTemplateOutlet="panelTemplate(); context: panelTemplateContext"></ng-container>
@@ -104,12 +104,22 @@ import { Darkable } from "@shared/directives/darkable";
 })
 export class DialogComponent {
 
+  constructor () {
+    effect(() => {
+      if(this.visible()) {
+        this.open();
+      } else {
+        this.close();
+      }
+    });
+  }
+
   confirm = output<boolean>();
   cancel = output<boolean>();
   closeOnOutsideClick = input<boolean>(false);
   platformId = inject(PLATFORM_ID);
 
-  visible = signal<boolean>(false);
+  visible = model<boolean>(false);
   firstTime = signal(true);
 
   panelTemplate = contentChild<TemplateRef<any>>("panel");
@@ -130,13 +140,21 @@ export class DialogComponent {
   }
 
   onConfirm(): void{
+    this.confirm.emit(true);
+  }
+
+  onConfirmAndClose(): void{
     this.close();
     this.confirm.emit(true);
   }
 
   onCancel(): void{
-    this.close();
     this.cancel.emit(true);
+  }
+
+  onCancelAndClose(): void {
+    this.cancel.emit(true);
+    this.close();
   }
 
   get panelTemplateContext() {
@@ -144,7 +162,9 @@ export class DialogComponent {
       $implicit: {},
       close: () => this.close(),
       onConfirm: () => this.onConfirm(),
-      onCancel: () => this.onCancel()
+      confirmAndClose: () => this.onConfirmAndClose(),
+      onCancel: () => this.onCancel(),
+      cancelAndClose: () => this.onCancelAndClose()
     }
   }
 

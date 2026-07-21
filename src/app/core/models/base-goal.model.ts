@@ -1,5 +1,5 @@
 import { BaseAccountViewModel } from "./base-account.model"
-import { BaseLastTransaction, BaseTransaction, BaseTransactionViewModel } from "./base-transaction.model"
+import { BaseLastTransaction } from "./base-transaction.model"
 
 export interface BaseGoal {
     id: string,
@@ -8,6 +8,7 @@ export interface BaseGoal {
     current_amount: number,
     target_amount: number,
     excess_amount: number,
+    track_progress: boolean,
     icon_key: string,
     account_id: string,
     last_transaction: BaseLastTransaction | null
@@ -20,6 +21,7 @@ export interface BaseGoalViewModel {
     current_amount: number,
     target_amount: number,
     excess_amount: number,
+    track_progress: boolean,
     progress: number,
     icon_key: string,
     account: BaseAccountViewModel,

@@ -1,7 +1,7 @@
 import { AfterViewInit, Directive, ElementRef, HostListener, input, OnChanges, output, signal, SimpleChanges, WritableSignal } from "@angular/core";
 
 @Directive()
-export abstract class Scroller<T = any> implements AfterViewInit, OnChanges{
+export abstract class Scroller<T = any> implements AfterViewInit{
     
     private initialX: number | null = null;
     private initialY: number | null = null;
@@ -21,10 +21,6 @@ export abstract class Scroller<T = any> implements AfterViewInit, OnChanges{
     ngAfterViewInit(): void {
         this.bootstrap();
         this.valueToPadding();
-    }
-
-    ngOnChanges(changes: SimpleChanges): void {
-        
     }
 
     protected bootstrap(){}
@@ -72,13 +68,13 @@ export abstract class Scroller<T = any> implements AfterViewInit, OnChanges{
         this.scrollerElementRef.nativeElement.scrollTo(getActiveItemByActiveIndexAsHtmlElement.offsetLeft - this.paddingX(), 0)
     }
 
-    @HostListener('touchstart', ['$event'])
+    // @HostListener('touchstart', ['$event'])
     public captureInitialXOnTouchStart($event: any){
         this.initialX = $event.touches[0].clientX;
         this.initialY = $event.touches[0].clientY;
     }
 
-    @HostListener('touchmove', ['$event'])
+    // @HostListener('touchmove', ['$event'])
     public carouselTouchMoveEventHandler($event: any){
 
         if(this.initialX === null || this.initialY === null) return;
@@ -102,7 +98,7 @@ export abstract class Scroller<T = any> implements AfterViewInit, OnChanges{
 
     }
 
-    @HostListener('wheel', ['$event'])
+    // @HostListener('wheel', ['$event'])
     public carouselWheelEventHandler($event: any){        
         this.initialX = $event.clientX;
         this.initialY = $event.clientY;

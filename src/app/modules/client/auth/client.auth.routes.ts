@@ -1,4 +1,5 @@
 import { Routes } from "@angular/router";
+import { recoveryGuard } from "@core/guards/recovery.guard";
 
 export const clientAuthRoutes: Routes = [
     {
@@ -18,8 +19,8 @@ export const clientAuthRoutes: Routes = [
     },
     {
         path: 'reset-password',
-        title: 'Redifinir a minha senha',
-        canActivate: [],
+        title: 'Redefinir a minha senha',
+        canActivate: [recoveryGuard],
         loadComponent: () => import('./features/reset-password/reset-password.page').then(page => page.ResetPasswordPage)
     }
 ];

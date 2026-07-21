@@ -9,22 +9,34 @@ export class UserStore {
     private _user = signal<User | null>(null);
     private _settings = signal<UserSetting | null>(null);
 
+    isUserLoaded = signal<boolean>(false);
+    isSettingsLoaded = signal<boolean>(false);
+
     user: Signal<User | null> = this._user.asReadonly();
     settings: Signal<UserSetting | null> = this._settings.asReadonly();
 
-    loadUser(data: User) {
+    loadUser(data: User | null) {
         this._user.set(data);
+        this.isUserLoaded.set(true);
     }
 
     updateLocalUser(changes: Partial<User>) {
         this._user.update(user => user ? { ...user, ...changes } : null);
     }
 
-    loadSettings(data: UserSetting) {
+    loadSettings(data: UserSetting | null) {
         this._settings.set(data);
+        this.isSettingsLoaded.set(true);
     }
 
     updateLocalSettings(changes: Partial<UserSetting>) {
-        this._settings.update(settings => settings ? { ...settings, ...changes } : null)
+        this._settings.update(settings => settings ? { ...settings, ...changes } : null);
+    }
+
+    clear() {
+        this._user.set(null);
+        this._settings.set(null);
+        this.isUserLoaded.set(false);
+        this.isSettingsLoaded.set(false);
     }
 }

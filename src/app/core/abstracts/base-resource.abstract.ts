@@ -7,7 +7,7 @@ export interface BaseModel{
 }
 
 export abstract class BaseResourceService<T extends BaseModel> {
-    private httpShema = inject(HttpSchema);
+    protected httpShema = inject(HttpSchema);
 
     protected getAll(uri: string): Observable<T[]> {
         return this.httpShema.get<T[]>(uri);
@@ -17,15 +17,15 @@ export abstract class BaseResourceService<T extends BaseModel> {
         return this.httpShema.get(`${uri}/${id}`);
     }
 
-    protected create(resource: Partial<T>, uri: string): Observable<T> {
+    protected create(resource: Partial<T> | any, uri: string): Observable<T> {
         return this.httpShema.post(uri, resource);
     }
 
-    protected update(id: string, resource: Partial<T>, uri: string): Observable<T> {
+    protected update(id: string, resource: Partial<T> | any, uri: string): Observable<T> {
         return this.httpShema.put<T>(`${uri}/${id}`, resource);
     }
 
-    protected delete(id: string, uri: string): Observable<void> {
-        return this.httpShema.delete<void>(`${uri}/${id}`);
+    protected delete(id: string, uri: string): Observable<T> {
+        return this.httpShema.delete<T>(`${uri}/${id}`);
     }
 }

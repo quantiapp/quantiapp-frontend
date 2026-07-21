@@ -1,10 +1,14 @@
 import { computed, Injectable, Signal, signal } from "@angular/core";
 import { AccountType } from "@core/models/account-type.model";
-import { BaseAccount } from "@core/models/base-account.model";
+import { AccountAccess, AccountShare, BaseAccount, TransferGoalResource } from "@core/models/base-account.model";
 import { BaseGoal } from "@core/models/base-goal.model";
 import { BaseTransaction } from "@core/models/base-transaction.model";
 import { Currency } from "@core/models/currency.model";
-import { list } from "postcss";
+
+export interface GoalState {
+    goals: BaseGoal[];
+    sharedGoals: Record<string, BaseGoal>;
+}
 
 @Injectable({
     providedIn: 'root'
@@ -12,12 +16,28 @@ import { list } from "postcss";
 export class FinanceStore {
     private _accounts = signal<BaseAccount[]>([]);
     private _shared_accounts = signal<BaseAccount[]>([]);
+    private _account_share = signal<AccountShare>({});
+
     private _goals = signal<BaseGoal[]>([]);
+    initialGoalState = {
+        goals: [],
+        sharedGoals: {}
+    };
+
     private _transactions = signal<BaseTransaction[]>([]);
     private _latest_transactions = signal<BaseTransaction[]>([]);
+    private _transactionsByAccountId = signal<Record<string, BaseTransaction[]>>({});
+    private _transactionsByGoalId = signal<Record<string, BaseTransaction[]>>({});
 
     private _currencies = signal<Currency[]>([]);
     private _accountTypes = signal<AccountType[]>([]);
+
+    isAccountsLoaded = signal<boolean>(false);
+    isSharedAccountsLoaded = signal<boolean>(false);
+    isGoalsLoaded = signal<boolean>(false);
+    isLatestTransactionsLoaded = signal<boolean>(false);
+    isCurrenciesLoaded = signal<boolean>(false);
+    isAccountTypesLoaded = signal<boolean>(false);
 
     currencies: Signal<Currency[]> = this._currencies.asReadonly();
     baseCurrency: Signal<Currency> = computed(() => this._currencies().find(c => c.is_base)!);
@@ -25,36 +45,52 @@ export class FinanceStore {
 
     accounts: Signal<BaseAccount[]> = this._accounts.asReadonly();
     shared_accounts: Signal<BaseAccount[]> = this._shared_accounts.asReadonly();
+    accountShare: Signal<AccountShare> = this._account_share.asReadonly();
     goals: Signal<BaseGoal[]> = this._goals.asReadonly();
 
     transactions: Signal<BaseTransaction[]> = this._transactions.asReadonly();
     latest_transactions: Signal<BaseTransaction[]> = this._latest_transactions.asReadonly();
 
-    mappedAccounts: Signal<Record<string, BaseAccount>> = computed(() => {
+    transactionsByAccountIdMap: Signal<Record<string, BaseTransaction[]>> = this._transactionsByAccountId.asReadonly();
+    transactionsByGoalIdMap: Signal<Record<string, BaseTransaction[]>> = this._transactionsByGoalId.asReadonly();
+
+    accountsMap: Signal<Record<string, BaseAccount>> = computed(() => {
         const map: Record<string, BaseAccount> = {};
         this._accounts().forEach(account => {
-            map[account.id] = account
-        })
+            map[account.id] = account;
+        });
         return map;
     });
 
-    mappedSharedAcconts: Signal<Record<string, BaseAccount>> = computed(() => {
+    sharedAccountsMap: Signal<Record<string, BaseAccount>> = computed(() => {
         const map: Record<string, BaseAccount> = {};
         this._shared_accounts().forEach(account => {
-            map[account.id] = account
-        })
+            map[account.id] = account;
+        });
         return map; 
-    })
+    });
     
-    mappedGoals: Signal<Record<string, BaseGoal>> = computed(() => {
+    goalsMap: Signal<Record<string, BaseGoal>> = computed(() => {
         const map: Record<string, BaseGoal> = {};
         this._goals().forEach(goal => {
             map[goal.id] = goal;
-        })
+        });
         return map;
     });
 
-    mappedCurrencies: Signal<Record<string, Currency>> = computed(() => {
+    goalsByAccountIdMap: Signal<Record<string, BaseGoal[]>> = computed(() => {
+        const map: Record<string, BaseGoal[]> = {};
+        this._goals().forEach(goal => {
+            const accountId = goal.account_id;
+            if (!map[accountId]) {
+                map[accountId] = [];
+            }
+            map[accountId].push(goal);
+        });
+        return map;
+    });
+
+    currenciesMap: Signal<Record<string, Currency>> = computed(() => {
         const map: Record<string, Currency> = {};
         this._currencies().forEach(currency => {
             map[currency.id] = currency;
@@ -62,7 +98,7 @@ export class FinanceStore {
         return map;
     });
 
-    mappedAccountTypes: Signal<Record<string, AccountType>> = computed(() => {
+    accountTypesMap: Signal<Record<string, AccountType>> = computed(() => {
         const map: Record<string, AccountType> = {};
         this._accountTypes().forEach(type => {
             map[type.id] = type;
@@ -72,14 +108,17 @@ export class FinanceStore {
 
     loadCurrencies(data: Currency[]) {
         this._currencies.set(data);
+        this.isCurrenciesLoaded.set(true);
     }
 
     loadAccountTypes(data: AccountType[]) {
         this._accountTypes.set(data);
+        this.isAccountTypesLoaded.set(true);
     }
 
     loadAccounts(data: BaseAccount[]) {
         this._accounts.set(data);
+        this.isAccountsLoaded.set(true);
     }
 
     addAccount(account: BaseAccount) {
@@ -87,7 +126,7 @@ export class FinanceStore {
     }
 
     updateLocalAccount(id: string, changes: Partial<BaseAccount>) {
-        this._accounts.update(list => list.map(account => account.id === id ? { ...account, ...changes } : account))
+        this._accounts.update(list => list.map(account => account.id === id ? { ...account, ...changes } : account));
     }
 
     removeLocalAccount(id: string) {
@@ -96,10 +135,67 @@ export class FinanceStore {
 
     loadSharedAccounts(data: BaseAccount[]) {
         this._shared_accounts.set(data);
+        this.isSharedAccountsLoaded.set(true);
+    }
+
+    loadAccountShare(data: AccountShare) {
+        this._account_share.set(data);
+    }
+
+    addLocalShareUser(data: AccountAccess) {
+        this._account_share.update((state: AccountShare) => {
+            const currentList = state[data.id] || [];
+            return {
+                ...state,
+                [data.id]: [...currentList, data]
+            };
+        });
+    }
+    
+    updateLocalShareUser(data: AccountAccess) {
+        this._account_share.update((state: AccountShare) => {
+            const currentList = state[data.id];
+            if (!currentList) return state;
+
+            const updatedList = currentList.map(access => {
+                if (access.user.id === data.user.id) {
+                    return { ...access, ...data };
+                }
+                return access;
+            });
+
+            return {
+                ...state,
+                [data.id]: updatedList
+            };
+        });
+    }
+
+    removeLocalShareUser(id: string, account_id: string) {
+        this._account_share.update((state: AccountShare) => {
+            const currentUsers = state[account_id];
+            if (!currentUsers) return state;
+            return {
+                ...state,
+                [account_id]: currentUsers.filter(ac => ac.user.id !== id)
+            };
+        });
+    }
+
+    upsertGoals(goals: BaseGoal[]) {
+        this._goals.update(currentGoals => {
+            const goalMap = new Map(currentGoals.map(g => [g.id, g]));
+            goals.forEach(g => {
+                goalMap.set(g.id, g);
+            });
+            return Array.from(goalMap.values());
+        });
+        this.isGoalsLoaded.set(true);
     }
 
     loadGoals(data: BaseGoal[]) {
         this._goals.set(data);
+        this.isGoalsLoaded.set(true);
     }
 
     AddGoal(goal: BaseGoal) {
@@ -107,14 +203,42 @@ export class FinanceStore {
     }
 
     updateLocalGoal(id: string, changes: Partial<BaseGoal>) {
-        this._goals.update(list => list.map(goal => goal.id === id ? { ...goal, ...changes } : goal))
+        this._goals.update(list => list.map(goal => goal.id === id ? { ...goal, ...changes } : goal));
+    }
+
+    transferGoal(resource: TransferGoalResource) {
+        this._goals.update(list => {
+            let goalExists = list.some(g => g.id === resource.goal);
+            if (!goalExists) return list;
+            return list.map(g => (g.id === resource.goal) ? { ...g, account_id: resource.destination_account } : g);
+        });
     }
 
     removeLocalGoal(id: string) {
         this._goals.update(list => list.filter(goal => goal.id !== id));
     }
 
-    // 
+    loadAccountTransactions(accountId: string, transactions: BaseTransaction[], isLoadMore: boolean = false) {
+        this._transactionsByAccountId.update(currentValue => {
+            const currentTransactions = currentValue[accountId] || [];
+            const updateList = isLoadMore ? [ ...currentTransactions, ...transactions ] : transactions;
+            return {
+                ...currentValue,
+                [accountId]: updateList
+            };
+        });
+    }
+
+    loadGoalTransactions(goalId: string, transactions: BaseTransaction[], isLoadMore: boolean = false) {
+        this._transactionsByGoalId.update(currentValue => {
+            const currentTransactions = currentValue[goalId] || [];
+            const updateList = isLoadMore ? [ ...currentTransactions, ...transactions ] : transactions;
+            return {
+                ...currentValue,
+                [goalId]: updateList
+            };
+        });
+    }
 
     loadTransactions(data: BaseTransaction[]) {
         this._transactions.set(data);
@@ -125,17 +249,16 @@ export class FinanceStore {
     }
 
     updateLocalTransaction(id: string, changes: Partial<BaseTransaction>) {
-        this._transactions.update(list => list.map(transaction => transaction.id === id ? { ...transaction, ...changes } : transaction))
+        this._transactions.update(list => list.map(transaction => transaction.id === id ? { ...transaction, ...changes } : transaction));
     }
 
     removeLocalTransaction(id: string) {
         this._transactions.update(list => list.filter(transaction => transaction.id !== id));
     }
 
-    // 
-
     loadLatestTransactions(data: BaseTransaction[]) {
         this._latest_transactions.set(data);
+        this.isLatestTransactionsLoaded.set(true);
     }
 
     addLatestTransaction(transaction: BaseTransaction) {
@@ -143,7 +266,7 @@ export class FinanceStore {
     }
 
     updateLocalLatestTransaction(id: string, changes: Partial<BaseTransaction>) {
-        this._latest_transactions.update(list => list.map(transaction => transaction.id === id ? { ...transaction, ...changes } : transaction))
+        this._latest_transactions.update(list => list.map(transaction => transaction.id === id ? { ...transaction, ...changes } : transaction));
     }
 
     removeLocalLatestTransaction(id: string) {

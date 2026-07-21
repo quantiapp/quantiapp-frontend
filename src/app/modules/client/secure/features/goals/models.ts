@@ -3,3 +3,5 @@ import { BaseGoalViewModel } from "@core/models/base-goal.model";
 
 export interface GoalAccountViewModel extends BaseAccountViewModel { }
 export interface GoalViewModel extends BaseGoalViewModel { }
+
+export type GoalInfoTab = 'general' | 'statistics';
