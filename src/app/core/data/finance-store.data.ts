@@ -272,4 +272,24 @@ export class FinanceStore {
     removeLocalLatestTransaction(id: string) {
         this._latest_transactions.update(list => list.filter(transaction => transaction.id !== id));
     }
+
+    clear() {
+        this._accounts.set([]);
+        this._shared_accounts.set([]);
+        this._account_share.set({});
+        this._goals.set([]);
+        this._transactions.set([]);
+        this._latest_transactions.set([]);
+        this._transactionsByAccountId.set({});
+        this._transactionsByGoalId.set({});
+        this._currencies.set([]);
+        this._accountTypes.set([]);
+        this.isAccountsLoaded.set(false);
+        this.isSharedAccountsLoaded.set(false);
+        this.isGoalsLoaded.set(false);
+        this.isLatestTransactionsLoaded.set(false);
+        this.isCurrenciesLoaded.set(false);
+        this.isAccountTypesLoaded.set(false);
+    }
 }
+

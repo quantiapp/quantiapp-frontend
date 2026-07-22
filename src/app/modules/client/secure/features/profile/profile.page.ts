@@ -120,6 +120,25 @@ import { ProfileFacade } from './profile.facade';
           </div>
         </app-card>
 
+        <!-- TERMINAR SESSÃO -->
+        <app-card>
+          <ng-container header>
+            <h2 class="text-base font-semibold text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">Sessão</h2>
+          </ng-container>
+
+          <div content class="flex flex-col gap-4">
+            <button
+            (click)="logout()"
+            appSubmitableButton
+            tailwindClassBackgroundColor="bg-(color:--primary)/20"
+            tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,10%)]"
+            class="w-full text-sm border border-(color:--primary)/40 rounded-[0.563rem] px-2.5 text-center py-1.5 font-medium text-(color:--secondary)"
+            appDarkable="dark:text-(--dm-secondary)">
+              Terminar sessão
+            </button>
+          </div>
+        </app-card>
+
         <!-- EXCLUIR A CONTA -->
         <app-card>
           <ng-container header>
@@ -193,6 +212,10 @@ export class ProfilePage {
     PopupService.info("Funcionalidade Premium estará disponível brevemente!");
   }
 
+  logout(): void {
+    this.profileFacade.logout();
+  }
+
   deleteAccount(): void {
     PopupService.confirm(
       "Tem a certeza de que pretende excluir a sua conta? Esta ação é irreversível.",
@@ -205,3 +228,4 @@ export class ProfilePage {
     );
   }
 }
+
