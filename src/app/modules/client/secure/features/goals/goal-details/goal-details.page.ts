@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, effect, inject, OnInit, signal, untracked, WritableSignal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterService } from '@core/services/router.service';
 import { FinanceStoreViewModel } from '@core/view-models/finance-store.viewmodel';
@@ -49,14 +49,37 @@ export class GoalDetailsPage implements OnInit {
 
   openAccountSettingsDrawer = signal<boolean>(false);
 
-  private _goal: WritableSignal<TheGoal | null> = signal(null);
-  private _account: WritableSignal<TheAccount | null> = signal(null);
+  accountId = signal<string | null>(null);
+  goalId = signal<string | null>(null);
 
-  goal = this._goal.asReadonly();
-  account = this._account.asReadonly();
+  account: Signal<TheAccount | null> = computed(() => {
+    const accId = this.accountId();
+    if(!accId) return null;
+
+    const ownedAccount = this.financeStoreViewModel.ownedAccountsMap()[accId];
+    if(ownedAccount !== undefined) {
+      return { type: 'owner', account: ownedAccount };
+    }
+
+    const sharedAccount = this.financeStoreViewModel.sharedAccountsMap()[accId];
+    if(sharedAccount !== undefined) {
+      return { type: 'shared', account: sharedAccount };
+    }
+
+    return null;
+  });
+
+  goal: Signal<TheGoal | null> = computed(() => {
+    const gId = this.goalId();
+    if(!gId) return null;
+
+    const currentGoal = this.financeStoreViewModel.goalsMap()[gId];
+    return currentGoal ? { goal: currentGoal } : null;
+  });
+
   transactions = computed(() => {
-    const goal = this.goal()?.goal;
-    return (!goal) ? [] : this.financeStore.transactionsByGoalIdMap()[goal.id];
+    const gId = this.goalId();
+    return (!gId) ? [] : (this.financeStore.transactionsByGoalIdMap()[gId] ?? []);
   });
   
   isLoadingTransactions = this.detailsFacade.isLoadingTransactions.asReadonly();
@@ -83,49 +106,16 @@ export class GoalDetailsPage implements OnInit {
           this.routerService.routeToSecureIndex();
           return;
         }
-        this.findData(account_id, goal_id);
+
+        this.accountId.set(account_id);
+        this.goalId.set(goal_id);
+
+        if(!this.financeStoreViewModel.goalsMap()[goal_id]){
+          PopupService.error("Impossível localizar a meta.");
+          this.routerService.routeToSecureIndex();
+        }
       }
     })
-  }
-
-  findData(account_id: string, goal_id: string): void {
-
-    let account: TheAccount | null = null;
-    let goal: TheGoal | null = null;
-
-    const ownedAccount = this.financeStoreViewModel.ownedAccountsMap()[account_id];
-    const sharedAccount = this.financeStoreViewModel.sharedAccountsMap()[account_id];
-
-    const currentGoal = this.financeStoreViewModel.goalsMap()[goal_id];
-
-    if(ownedAccount !== undefined) {
-      account = {
-        type: 'owner',
-        account: ownedAccount
-      }
-    }
-
-    if(sharedAccount !== undefined) {
-      account = {
-        type: 'shared',
-        account: sharedAccount
-      }
-    }
-
-    if(currentGoal !== undefined) {
-      goal = {
-        goal: currentGoal
-      }
-    }
-
-    if(account === null || goal ===  null){
-      PopupService.error("Impossível localizar a meta.");
-      this.routerService.routeToSecureIndex()
-      return;
-    }
-
-    this._account.set(account);
-    this._goal.set(goal);
   }
 
   goalTransactions(goal: TheGoal): void {

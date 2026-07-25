@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, effect, inject, signal, untracked, WritableSignal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { AccountHeroComponent } from "./components/account-hero/account-hero.component";
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { BaseAccountViewModel } from '@core/models/base-account.model';
@@ -50,8 +50,30 @@ export class DetailsPage {
 
   openAccountSettingsDrawer = signal<boolean>(false);
 
-  private _account: WritableSignal<TheAccount | null> = signal(null);
-  account = this._account.asReadonly();
+  accountId = signal<string | null>(null);
+
+  account: Signal<TheAccount | null> = computed(() => {
+    const id = this.accountId();
+    if(!id) return null;
+
+    const ownedAccount = this.financeStoreViewModel.ownedAccountsMap()[id];
+    if(ownedAccount !== undefined) {
+      return {
+        type: 'owner',
+        account: ownedAccount
+      }
+    }
+
+    const sharedAccount = this.financeStoreViewModel.sharedAccountsMap()[id];
+    if(sharedAccount !== undefined) {
+      return {
+        type: 'shared',
+        account: sharedAccount
+      }
+    }
+
+    return null;
+  });
 
   constructor(private destroyRef: DestroyRef) {
     effect(() => {
@@ -70,39 +92,14 @@ export class DetailsPage {
           this.routerService.routeToSecureIndex('accounts');
           return;
         }
-        this.findAccount(id);
+        this.accountId.set(id);
+
+        if(!this.financeStoreViewModel.ownedAccountsMap()[id] && !this.financeStoreViewModel.sharedAccountsMap()[id]){
+          PopupService.error("Não foi possível localizar esta conta.");
+          this.routerService.routeToSecureIndex('accounts');
+        }
       }
     })
-  }
-
-  findAccount(id: string): void {
-
-    let account: TheAccount | null = null;
-
-    const ownedAccount = this.financeStoreViewModel.ownedAccountsMap()[id];
-    const sharedAccount = this.financeStoreViewModel.sharedAccountsMap()[id];
-
-    if(ownedAccount !== undefined) {
-      account = {
-        type: 'owner',
-        account: this.financeStoreViewModel.ownedAccountsMap()[id]
-      }
-    }
-
-    if(sharedAccount !== undefined) {
-      account = {
-        type: 'shared',
-        account: this.financeStoreViewModel.sharedAccountsMap()[id]
-      }
-    }
-
-    if(account === null){
-      PopupService.error("Não foi possível localizar esta conta.");
-      this.routerService.routeToSecureIndex('accounts')
-      return;
-    }
-    
-    this._account.set(account);
   }
 
   openAccountSettingsDrawerFn(state: boolean): void {
