@@ -197,9 +197,9 @@ export class CreateGoalComponent implements OnInit {
     const goalDto = new CreateGoalDTO(
       this.createGoalFormGroup.get('name')?.value,
       this.createGoalFormGroup.get('description')?.value,
-      this.createGoalFormGroup.get('currentAmount')?.value,
-      this.createGoalFormGroup.get('targetAmount')?.value,
-      this.createGoalFormGroup.get('trackProgress')?.value,
+      Number(this.createGoalFormGroup.get('currentAmount')?.value ?? 0),
+      Number(this.createGoalFormGroup.get('targetAmount')?.value ?? 0),
+      Boolean(this.createGoalFormGroup.get('trackProgress')?.value),
       this.createGoalFormGroup.get('iconKey')?.value,
       this.createGoalFormGroup.get('account')?.value
     );

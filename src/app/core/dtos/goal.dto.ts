@@ -21,8 +21,8 @@ export class CreateGoalDTO {
     ) {
         this.name = name;
         this.description = description;
-        this.current_amount = current_amount;
-        this.target_amount = target_amount;
+        this.current_amount = Number(current_amount ?? 0);
+        this.target_amount = Number(target_amount ?? 0);
         this.track_progress = track_progress;
         this.icon_key = icon_key;
         this.account_id = account_id;
