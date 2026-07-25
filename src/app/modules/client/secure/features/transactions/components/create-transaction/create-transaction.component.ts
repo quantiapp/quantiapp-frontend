@@ -111,7 +111,7 @@ import { PopupService } from '@core/services/pop-up.service';
           @if (sourceAccountGoalsSelectOptions().length > 0 && sourceAccountGoalsSelectOptions()[0].options.length > 0) {
             <div class="form-control flex flex-col gap-2.5">
               <label for="#sourceGoal" class="text-sm text-(--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/60">
-                Meta Origem {{ createTransactionFormGroup.get('type')?.value === 'g2g' ? '(Obrigatório)' : '(Opcional)' }}
+                Meta Origem
               </label>
               <q-select
               [appearence]="['w-full']"
@@ -152,7 +152,7 @@ import { PopupService } from '@core/services/pop-up.service';
           @if (destAccountGoalsSelectOptions().length > 0 && destAccountGoalsSelectOptions()[0].options.length > 0) {
             <div class="form-control flex flex-col gap-2.5">
               <label for="#destinationGoal" class="text-sm text-(--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/60">
-                Meta Destino {{ createTransactionFormGroup.get('type')?.value === 'g2g' ? '(Obrigatório)' : '(Opcional)' }}
+                Meta Destino
               </label>
               <q-select
               [appearence]="['w-full']"
@@ -326,10 +326,12 @@ export class CreateTransactionComponent implements OnInit {
 
     if (type === 'income') {
       destAcc.setValidators([Validators.required]);
+      destGl.setValidators([Validators.required]);
       sourceAcc.setValue(null);
       sourceGl.setValue(null);
     } else if (type === 'expense') {
       sourceAcc.setValidators([Validators.required]);
+      sourceGl.setValidators([Validators.required]);
       destAcc.setValue(null);
       destGl.setValue(null);
     } else if (type === 'g2g') {
