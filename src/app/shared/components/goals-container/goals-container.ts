@@ -89,44 +89,48 @@ import { RouterLink } from "@angular/router";
                     </p>
                   }
                 </div>
-                <div class="progress">
-                  <div class="numbers flex justify-between items-end">
-                    <div class="percentage">
-                      <p
-                      class="text-xl font-bold text-[#202020]/20"
-                      >
-                      <!-- [style.color]="!concluded ? item.account.color : highlightColor"
-                      [appDarkable]="!concluded ? 'dark:text-(color:--dm-secondary)' : 'not-empty'" -->
-                        <span class=" duration-[.3s]"[style.color]="!concluded ? item.account.color : highlightColor">
-                          {{ item.progress | mask: 'percent' : { suffix: '%' } }}
-                        </span>
-                      </p>
-                    </div>
-                    <div class="achievements text-xs font-medium">
-                      @if(!concluded) {
-                        <p
-                        class=" text-[#202020]/60 duration-[.3s]"
-                        [appDarkable]="!concluded ? 'dark:text-(color:--dm-secondary)' : 'not-empty'"
-                        >
-                          <span class="" [style.color]="item.account.color">
-                            {{ (item.account.can_see_balance) ? (item.current_amount | money) : '*********,00' }}
+                @if (item.track_progress) {
+                  <div class="progress">
+                    <div class="numbers flex justify-between items-end">
+                      <div class="percentage">
+                        <p class="text-xl font-bold text-[#202020]/20">
+                          <span class=" duration-[.3s]" [style.color]="!concluded ? item.account.color : highlightColor">
+                            {{ item.progress | mask: 'percent' : { suffix: '%' } }}
                           </span>
-                          / {{ item.target_amount | money }}
                         </p>
-                      } @else {
-                        <p class="" [style.color]="highlightColor">
-                          <span>🏅</span>
-                          Meta alcançada
-                        </p>
-                      }
+                      </div>
+                      <div class="achievements text-xs font-medium">
+                        @if(!concluded) {
+                          <p
+                          class=" text-[#202020]/60 duration-[.3s]"
+                          [appDarkable]="!concluded ? 'dark:text-(color:--dm-secondary)' : 'not-empty'"
+                          >
+                            <span class="" [style.color]="item.account.color">
+                              {{ (item.account.can_see_balance) ? (item.current_amount | money) : '*********,00' }}
+                            </span>
+                            / {{ item.target_amount | money }}
+                          </p>
+                        } @else {
+                          <p class="" [style.color]="highlightColor">
+                            <span>🏅</span>
+                            Meta alcançada
+                          </p>
+                        }
+                      </div>
+                    </div>
+                    <div class="progress-track mt-2">
+                      <div class="thumb bg-[#F2F2F2] rounded-full w-full h-2 overflow-hidden">
+                        <div class="tracker h-full duration-[.3s]" [style.max-width.%]="item.progress" [style.background-color]="!concluded ? item.account.color : highlightColor"></div>
+                      </div>
                     </div>
                   </div>
-                  <div class="progress-track mt-2">
-                    <div class="thumb bg-[#F2F2F2] rounded-full w-full h-2 overflow-hidden">
-                      <div class="tracker h-full duration-[.3s]" [style.max-width.%]="item.progress" [style.background-color]="!concluded ? item.account.color : highlightColor"></div>
-                    </div>
+                } @else {
+                  <div class="no-tracker py-2">
+                    <p class="text-xl font-bold" [style.color]="item.account.color" [appDarkable]="'dark:text-(color:--dm-secondary)'">
+                      {{ (item.account.can_see_balance) ? (item.current_amount | money) : '*********,00' }}
+                    </p>
                   </div>
-                </div>
+                }
               </div>
             </ng-container>
             <ng-container foot>
