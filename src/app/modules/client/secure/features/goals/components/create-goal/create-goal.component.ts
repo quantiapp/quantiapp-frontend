@@ -1,6 +1,6 @@
-import { Component, computed, DestroyRef, inject, OnInit, output, signal, Signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, output, signal, Signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
+import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { SelectOption, SelectComponent, SelectGroup } from '@shared/components/forms/select.component';
 import { finalize } from 'rxjs';
 import { SpinnerUi } from "@shared/ui/spinner/spinner.ui";
@@ -15,6 +15,7 @@ import { ControlCharCounterUi } from "@shared/ui/input-char-counter/input-char-c
 import { CheckboxComponent } from "@shared/components/forms/checkbox.component";
 import { MoneyInputComponent } from "@shared/components/forms/money-input.component";
 import { PopupService } from '@core/services/pop-up.service';
+import { PlanService } from '@core/services/plan.service';
 
 @Component({
   selector: 'app-create-goal',
@@ -23,6 +24,12 @@ import { PopupService } from '@core/services/pop-up.service';
   template: `
     <div class="panel-body flex gap-5 flex-col">
       <h1 class="panel-header text-lg font-medium text-center text-(--secondary)" appDarkable="dark:text-(--dm-secondary)/60">Registrar meta</h1>
+
+      @if(selectedAccount() && !canCreateGoalForSelectedAccount()) {
+        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-600 dark:text-amber-400 text-xs font-medium text-center">
+          ⚠️ Atingiu o limite de metas para esta conta no seu plano atual. Faça upgrade para registrar mais metas.
+        </div>
+      }
 
       <form (submit)="submit()" [formGroup]="createGoalFormGroup" class="panel-form flex gap-5 flex-col">
 
@@ -117,11 +124,11 @@ import { PopupService } from '@core/services/pop-up.service';
         <div class="submit">
           <button
           type="submit"
-          [disabled]="this.isCreatingGoal() || this.createGoalFormGroup.invalid"
+          [disabled]="this.isCreatingGoal() || this.createGoalFormGroup.invalid || !canCreateGoalForSelectedAccount()"
           appSubmitableButton
           tailwindClassBackgroundColor="bg-(color:--primary)/63"
           tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
-          class="w-full text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1.5 font-medium">
+          class="w-full text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1.5 font-medium disabled:opacity-50">
             @if(isCreatingGoal()){
               <app-spinner />
             } @else {
@@ -140,17 +147,25 @@ import { PopupService } from '@core/services/pop-up.service';
   `
 })
 export class CreateGoalComponent implements OnInit {
+  defaultAccountId = input<string | undefined>();
   onSuccess = output<void>();
 
   createGoalFormGroup: FormGroup = new FormGroup({});
   isCreatingGoal = signal<boolean>(false);
+  selectedAccount = signal<string | undefined>(undefined);
 
   destroyRef = inject(DestroyRef);
 
   private goalFacade = inject(GoalFacade);
+  private planService = inject(PlanService);
+
+  canCreateGoalForSelectedAccount = computed(() => {
+    const accId = this.selectedAccount();
+    return this.planService.canCreateGoal()(accId);
+  });
 
   accountsGroupSelect: Signal<SelectGroup[]> = computed(() => {
-    const shared_accounts = this.goalFacade.shared_accounts().filter(a => a); // some filter if needed. Ex: accounts which user can manage goals
+    const shared_accounts = this.goalFacade.shared_accounts().filter(a => a);
     
     const myAccounts: SelectGroup = {
       label: 'Suas contas',
@@ -167,14 +182,21 @@ export class CreateGoalComponent implements OnInit {
   icons = signal<SelectOption[]>(icon_keys.map(key => ({ icon: key, label: key, value: key })));
 
   ngOnInit(): void {
+    const initialAccount = this.defaultAccountId() || null;
+    this.selectedAccount.set(this.defaultAccountId());
+
     this.createGoalFormGroup = new FormGroup({
-      'account': new FormControl(null, [ Validators.required ]),
+      'account': new FormControl(initialAccount, [ Validators.required ]),
       'name': new FormControl('', [ Validators.required, Validators.minLength(5), Validators.maxLength(30) ]),
       'description': new FormControl('', [ Validators.required, Validators.minLength(5), Validators.maxLength(50) ]),
       'currentAmount': new FormControl(null, [ Validators.required ]),
       'trackProgress': new FormControl(true, [ Validators.required ]),
       'iconKey': new FormControl(null, [ Validators.required ])
-    })
+    });
+
+    this.createGoalFormGroup.get('account')?.valueChanges.subscribe(val => {
+      this.selectedAccount.set(val);
+    });
 
     if(this.createGoalFormGroup.get('trackProgress')?.value) {
       this.createGoalFormGroup.addControl('targetAmount', new FormControl(null, [ Validators.required ]), { emitEvent: true });
@@ -190,6 +212,12 @@ export class CreateGoalComponent implements OnInit {
   }
 
   submit(): void {
+    const accId = this.createGoalFormGroup.get('account')?.value;
+    if(!this.planService.canCreateGoal()(accId)) {
+      PopupService.error("Atingiu o limite de metas para esta conta no seu plano atual.");
+      return;
+    }
+
     if(this.createGoalFormGroup.invalid) return;
 
     this.isCreatingGoal.set(true);
@@ -201,7 +229,7 @@ export class CreateGoalComponent implements OnInit {
       Number(this.createGoalFormGroup.get('targetAmount')?.value ?? 0),
       Boolean(this.createGoalFormGroup.get('trackProgress')?.value),
       this.createGoalFormGroup.get('iconKey')?.value,
-      this.createGoalFormGroup.get('account')?.value
+      accId
     );
 
     this.goalFacade.create(goalDto).pipe(

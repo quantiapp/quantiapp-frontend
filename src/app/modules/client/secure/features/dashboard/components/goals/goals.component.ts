@@ -10,6 +10,7 @@ import { GoalsContainer } from "@shared/components/goals-container/goals-contain
       <app-goals-container
       (activeGoalEmitter)="updateActiveGoal($event)"
       [isLoading]="isLoading()"
+      [activeAccountId]="activeAccountId()"
       [goals]="goals()" />
     </div>
   `,
@@ -18,6 +19,7 @@ import { GoalsContainer } from "@shared/components/goals-container/goals-contain
 export class GoalsComponent {
   isLoading = input.required<boolean>();
   goals = input.required<DashboardGoalViewModel[]>();
+  activeAccountId = input<string | undefined>();
 
   activeGoalEmitter = output<number>();
 

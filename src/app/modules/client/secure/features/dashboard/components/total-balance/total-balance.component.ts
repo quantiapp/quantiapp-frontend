@@ -5,10 +5,12 @@ import { Darkable } from "@shared/directives/darkable";
 import { CardTemplate } from '@client/secure/ui/card.template';
 import { DashboardSummary } from '../../models';
 import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
+import { DrawerComponent } from "@shared/components/drawer.component";
+import { CreateTransactionComponent } from "@client/secure/features/transactions/components/create-transaction/create-transaction.component";
 
 @Component({
   selector: 'app-total-balance',
-  imports: [CardTemplate, DialogComponent, SubmitableButton, Darkable, CustomCurrencyPipe],
+  imports: [CardTemplate, DialogComponent, SubmitableButton, Darkable, CustomCurrencyPipe, DrawerComponent, CreateTransactionComponent],
   template: `
     <app-card>
       <ng-container header>
@@ -78,12 +80,19 @@ import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
         </div>
       </ng-container>
       <ng-container foot>
-        <a href="" class="text-base font-bold flex gap-2 justify-center items-center bg-(color:--primary) text-(color:--secondary) rounded-full px-4 py-[0.625rem]">
-          <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8.5 12.0001H12.5M12.5 12.0001H16.5M12.5 12.0001V16.0001M12.5 12.0001V8.0001M12.5 21.0001C7.52944 21.0001 3.5 16.9707 3.5 12.0001C3.5 7.02954 7.52944 3.0001 12.5 3.0001C17.4706 3.0001 21.5 7.02954 21.5 12.0001C21.5 16.9707 17.4706 21.0001 12.5 21.0001Z" stroke="#202020" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Adicionar
-        </a>
+        <q-drawer>
+          <ng-template #invoker let-open="open">
+            <button (click)="open()" class="text-base font-bold flex gap-2 justify-center items-center bg-(color:--primary) text-(color:--secondary) rounded-full px-4 py-[0.625rem]">
+              <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.5 12.0001H12.5M12.5 12.0001H16.5M12.5 12.0001V16.0001M12.5 12.0001V8.0001M12.5 21.0001C7.52944 21.0001 3.5 16.9707 3.5 12.0001C3.5 7.02954 7.52944 3.0001 12.5 3.0001C17.4706 3.0001 21.5 7.02954 21.5 12.0001C21.5 16.9707 17.4706 21.0001 12.5 21.0001Z" stroke="#202020" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Adicionar
+            </button>
+          </ng-template>
+          <ng-template #panel let-close="close">
+            <app-create-transaction (onSuccess)="close()"></app-create-transaction>
+          </ng-template>
+        </q-drawer>
       </ng-container>
     </app-card>
   `,
@@ -92,3 +101,4 @@ import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
 export class TotalBalanceComponent {
   summary = input.required<DashboardSummary>();
 }
+

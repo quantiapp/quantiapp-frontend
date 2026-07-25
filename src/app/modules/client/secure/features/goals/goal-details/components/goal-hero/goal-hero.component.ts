@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { HeroUi } from "@shared/ui/hero/hero.ui";
 import { TheGoal } from '../../goal-details.page';
@@ -9,10 +9,12 @@ import { IconContainerContainer } from "@shared/ui/icon/icon-container.container
 import { NgxMaskPipe } from 'ngx-mask';
 import { EditGoalComponent } from "../../../components/edit-goal/edit-goal.component";
 import { Darkable } from "@shared/directives/darkable";
+import { DrawerComponent } from "@shared/components/drawer.component";
+import { CreateTransactionComponent } from "@client/secure/features/transactions/components/create-transaction/create-transaction.component";
 
 @Component({
   selector: 'app-goal-hero',
-  imports: [RouterLink, HeroUi, DialogComponent, CustomCurrencyPipe, IconContainerContainer, NgxMaskPipe, EditGoalComponent, Darkable],
+  imports: [RouterLink, HeroUi, DialogComponent, CustomCurrencyPipe, IconContainerContainer, NgxMaskPipe, EditGoalComponent, Darkable, DrawerComponent, CreateTransactionComponent],
   template: `
     <app-hero>
       <div class="goal-details flex gap-2 flex-col items p-4">
@@ -75,8 +77,6 @@ import { Darkable } from "@shared/directives/darkable";
                 <p
                 class="text-2xl font-bold text-[#202020]/20"
                 >
-                <!-- [style.color]="'#202020'"
-                appDarkable="dark:text-(color:--dm-secondary)" -->
                   <span class=" duration-[.3s]" [style.color]="'#202020'">
                     {{ goal().goal.progress | mask: 'percent' : { suffix: '%' } }}
                   </span>
@@ -107,22 +107,29 @@ import { Darkable } from "@shared/directives/darkable";
       <div class="goal-actions w-full mt-4 flex gap-6 justify-center items-center">
         
         <div class="add">
-          <a [routerLink]="['']" class="text-sm rounded-full px-4 py-2.5 flex gap-1 items-center bg-(--secondary) text-(--primary)"
+          <button (click)="openCreateTransactionDrawer.set(true)" class="text-sm rounded-full px-4 py-2.5 flex gap-1 items-center bg-(--secondary) text-(--primary)"
           >
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M10.6667 16H16M16 16H21.3333M16 16V21.3333M16 16V10.6667M16 28C9.37258 28 4 22.6274 4 16C4 9.37258 9.37258 4 16 4C22.6274 4 28 9.37258 28 16C28 22.6274 22.6274 28 16 28Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Adicionar
-          </a>
+          </button>
         </div>
 
       </div>
       
     </app-hero>
+
+    <q-drawer [(visible)]="openCreateTransactionDrawer">
+      <ng-template #panel>
+        <app-create-transaction [defaultAccountId]="account().account.id" [defaultGoalId]="goal().goal.id" (onSuccess)="openCreateTransactionDrawer.set(false)"></app-create-transaction>
+      </ng-template>
+    </q-drawer>
   `,
   styles: ``
 })
 export class GoalHeroComponent {
   goal = input.required<TheGoal>();
   account = input.required<TheAccount>();
+  openCreateTransactionDrawer = signal<boolean>(false);
 }

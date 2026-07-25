@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, linkedSignal, OnInit, output, Signal, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, linkedSignal, OnInit, output, Signal, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TransactionFacade } from '../../transaction.facade';
 import { SelectGroup, SelectComponent, SelectOption } from '@shared/components/forms/select.component';
@@ -198,6 +198,9 @@ import { PopupService } from '@core/services/pop-up.service';
   `
 })
 export class CreateTransactionComponent implements OnInit {
+  defaultAccountId = input<string | undefined>();
+  defaultGoalId = input<string | undefined>();
+
   onSuccess = output<void>();
   createTransactionFormGroup: FormGroup = new FormGroup({});
   isCreatingTransaction = signal<boolean>(false);
@@ -268,6 +271,9 @@ export class CreateTransactionComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const initialAcc = this.defaultAccountId() || null;
+    const initialGoal = this.defaultGoalId() || null;
+
     this.createTransactionFormGroup = new FormGroup({
       'notes': new FormControl('', [ Validators.required, Validators.minLength(5), Validators.maxLength(30) ]),
       'type': new FormControl('income', [Validators.required ]),
@@ -275,10 +281,14 @@ export class CreateTransactionComponent implements OnInit {
       'amount': new FormControl(null, [ Validators.required ]),
       'sourceAccount': new FormControl(null, [ ]),
       'sourceGoal': new FormControl(null, [ ]),
-      'destinationAccount': new FormControl(null, [ ]),
-      'destinationGoal': new FormControl(null, [ ]),
+      'destinationAccount': new FormControl(initialAcc, [ ]),
+      'destinationGoal': new FormControl(initialGoal, [ ]),
       'date': new FormControl(new Date().toISOString().substring(0, 10), [ Validators.required ])
     });
+
+    if (initialAcc) {
+      this.selectedDestAccount.set(initialAcc);
+    }
 
     // Set initial validators for default type
     this.updateValidators('income');
@@ -290,12 +300,16 @@ export class CreateTransactionComponent implements OnInit {
 
     this.createTransactionFormGroup.get('sourceAccount')?.valueChanges.subscribe(value => {
       this.selectedSourceAccount.set(value);
-      this.createTransactionFormGroup.get('sourceGoal')?.setValue(null);
+      if (value !== initialAcc) {
+        this.createTransactionFormGroup.get('sourceGoal')?.setValue(null);
+      }
     });
 
     this.createTransactionFormGroup.get('destinationAccount')?.valueChanges.subscribe(value => {
       this.selectedDestAccount.set(value);
-      this.createTransactionFormGroup.get('destinationGoal')?.setValue(null);
+      if (value !== initialAcc) {
+        this.createTransactionFormGroup.get('destinationGoal')?.setValue(null);
+      }
     });
   }
 

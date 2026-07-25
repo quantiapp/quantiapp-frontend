@@ -13,6 +13,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CreateAccountDTO } from '@core/dtos/account.dto';
 import { PopupService } from '@core/services/pop-up.service';
 
+import { PlanService } from '@core/services/plan.service';
+
 @Component({
   selector: 'app-create-account',
   imports: [SelectComponent, IconContainerContainer, Darkable, ReactiveFormsModule, SubmitableButton, SpinnerUi],
@@ -20,6 +22,12 @@ import { PopupService } from '@core/services/pop-up.service';
   template: `
     <div class="panel-body flex gap-5 flex-col">
       <h1 class="panel-header text-lg font-medium text-center text-(--secondary)" appDarkable="dark:text-(--dm-secondary)/60">Registrar conta</h1>
+
+      @if(!canCreateAccount()) {
+        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-600 dark:text-amber-400 text-xs font-medium text-center">
+          ⚠️ Atingiu o limite de contas do seu plano atual. Faça upgrade para registrar mais contas.
+        </div>
+      }
 
       <form (submit)="submit()" [formGroup]="createAccountFormGroup" class="panel-form flex gap-5 flex-col">
         <div class="form-control flex flex-col gap-2.5">
@@ -49,7 +57,7 @@ import { PopupService } from '@core/services/pop-up.service';
         </div>
 
         <div class="form-control flex flex-col gap-2.5">
-          <label for="#account_currency" class="text-sm text-(--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/60">Tipo de conta</label>
+          <label for="#account_currency" class="text-sm text-(--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/60">Moeda da conta</label>
           <q-select
           [appearence]="['w-full']"
           [dropdownAppearence]="['!w-full']"
@@ -75,11 +83,11 @@ import { PopupService } from '@core/services/pop-up.service';
         <div class="submit">
           <button
           type="submit"
-          [disabled]="this.isCreatingAccount() || this.createAccountFormGroup.invalid"
+          [disabled]="this.isCreatingAccount() || this.createAccountFormGroup.invalid || !canCreateAccount()"
           appSubmitableButton
           tailwindClassBackgroundColor="bg-(color:--primary)/63"
           tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
-          class="w-full text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1.5 font-medium">
+          class="w-full text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1.5 font-medium disabled:opacity-50">
             @if(isCreatingAccount()){
               <app-spinner />
             } @else {
@@ -113,6 +121,9 @@ export class CreateAccountComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   private accountFacade = inject(AccountFacade);
+  private planService = inject(PlanService);
+
+  canCreateAccount = this.planService.canCreateAccount;
   accountTypes: Signal<SelectOption[]> = computed(() => this.accountFacade.accountTypes().map(act => ({ label: act.description, value: act.id, icon: act.icon_key })));
   currencies: Signal<SelectOption[]> = computed(() => this.accountFacade.currencies().map(curr => ({ label: curr.code, value: curr.id })));
 
@@ -126,6 +137,10 @@ export class CreateAccountComponent implements OnInit {
   }
 
   submit(): void {
+    if(!this.canCreateAccount()) {
+      PopupService.error("Atingiu o limite de contas do seu plano atual. Faça upgrade para registrar mais.");
+      return;
+    }
     if(this.createAccountFormGroup.invalid) return;
 
     this.isCreatingAccount.set(true);

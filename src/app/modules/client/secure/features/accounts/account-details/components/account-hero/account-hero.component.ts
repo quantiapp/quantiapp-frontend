@@ -17,10 +17,11 @@ import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TransferGoalComponent } from "../transfer-goal/transfer-goal.component";
 import { UpdateAccountDTO } from '@core/dtos/account.dto';
+import { CreateTransactionComponent } from '@client/secure/features/transactions/components/create-transaction/create-transaction.component';
 
 @Component({
   selector: 'app-account-hero',
-  imports: [HeroUi, RouterLink, DialogComponent, SubmitableButton, ReactiveFormsModule, Darkable, BarSpinnerUi, DrawerComponent, AccountSettingsComponent, CustomCurrencyPipe, TransferGoalComponent],
+  imports: [HeroUi, RouterLink, DialogComponent, SubmitableButton, ReactiveFormsModule, Darkable, BarSpinnerUi, DrawerComponent, AccountSettingsComponent, CustomCurrencyPipe, TransferGoalComponent, CreateTransactionComponent],
   template: `
     <app-hero>
       <div class="account-details flex flex-col items p-4">
@@ -102,14 +103,14 @@ import { UpdateAccountDTO } from '@core/dtos/account.dto';
       >
         
         <div class="add">
-          <a [routerLink]="['']" class="text-sm flex gap-1 flex-col items-center text-(--secondary)"
+          <button (click)="openCreateTransactionDrawer.set(true)" class="text-sm flex gap-1 flex-col items-center text-(--secondary)"
           appDarkable="dark:text-(--dm-secondary)"
           >
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M10.6667 16H16M16 16H21.3333M16 16V21.3333M16 16V10.6667M16 28C9.37258 28 4 22.6274 4 16C4 9.37258 9.37258 4 16 4C22.6274 4 28 9.37258 28 16C28 22.6274 22.6274 28 16 28Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Adicionar
-          </a>
+          </button>
         </div>
         @if(!account().account.owner){
           <div class="transfer">
@@ -147,6 +148,12 @@ import { UpdateAccountDTO } from '@core/dtos/account.dto';
         <app-transfer-goal [account]="account()" (onSuccess)="openTransferGoalDrawer.set(false)"></app-transfer-goal>
       </ng-template>
     </q-drawer>
+
+    <q-drawer [(visible)]="openCreateTransactionDrawer">
+      <ng-template #panel>
+        <app-create-transaction [defaultAccountId]="account().account.id" (onSuccess)="openCreateTransactionDrawer.set(false)"></app-create-transaction>
+      </ng-template>
+    </q-drawer>
       
     </app-hero>
   `,
@@ -159,6 +166,7 @@ export class AccountHeroComponent implements OnInit {
 
   openAccountSettingsDrawer = model<boolean>(false);
   openTransferGoalDrawer = model<boolean>(false);
+  openCreateTransactionDrawer = signal<boolean>(false);
 
   private destroyRef = inject(DestroyRef);
   private facade = inject(AccountFacade);

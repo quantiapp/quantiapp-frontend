@@ -33,7 +33,7 @@ import { FinanceStore } from '@core/data/finance-store.data';
       </section>
 
       <section class="goals">
-        <app-dashboard-goals [isLoading]="facade.isLoadingGoals()" [goals]="goals()" />
+        <app-dashboard-goals [isLoading]="facade.isLoadingGoals()" [activeAccountId]="activeAccountId()" [goals]="goals()" />
       </section>
 
       <section class="latest-transactions">
@@ -54,6 +54,7 @@ export class DashboardPage implements OnInit {
   
   summary: Signal<DashboardSummary> = computed(() => this.financeStoreViewModel.dashboardSummary());
   accounts = computed(() => this.financeStoreViewModel.accountsWithBalances());
+  activeAccountId = computed(() => this.accounts()?.[this.activeAccount()]?.id);
   goals = computed(() => {
     const accList = this.accounts();
     const activeIdx = this.activeAccount();

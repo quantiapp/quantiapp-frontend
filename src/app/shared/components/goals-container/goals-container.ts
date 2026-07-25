@@ -34,7 +34,7 @@ import { RouterLink } from "@angular/router";
           </button>
         </ng-template>
         <ng-template #panel let-close="close">
-          <app-create-goal (onSuccess)="close()"></app-create-goal>
+          <app-create-goal [defaultAccountId]="activeAccountId()" (onSuccess)="close()"></app-create-goal>
         </ng-template>
       </q-drawer>
     </div>
@@ -162,6 +162,7 @@ import { RouterLink } from "@angular/router";
 export class GoalsContainer implements OnInit {
   isLoading = input.required<boolean>();
   goals = input.required<BaseGoalViewModel[]>();
+  activeAccountId = input<string | undefined>();
 
   activeGoalEmitter = output<number>();
 

@@ -1,6 +1,6 @@
 import { Injectable, Signal, signal } from "@angular/core";
 import { UserSetting } from "@core/models/user-settings.model";
-import { User } from "@core/models/user.model";
+import { PlanLimits, User } from "@core/models/user.model";
 
 @Injectable({
     providedIn: 'root'
@@ -14,6 +14,13 @@ export class UserStore {
 
     user: Signal<User | null> = this._user.asReadonly();
     settings: Signal<UserSetting | null> = this._settings.asReadonly();
+
+    planLimits = signal<PlanLimits>({
+        plan_name: 'free',
+        max_accounts: 2,
+        max_goals_per_account: 3,
+        max_shares: 1
+    });
 
     loadUser(data: User | null) {
         this._user.set(data);
