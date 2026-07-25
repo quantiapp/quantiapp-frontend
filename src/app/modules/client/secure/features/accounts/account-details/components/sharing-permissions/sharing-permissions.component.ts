@@ -101,8 +101,10 @@ export class SharingPermissionsComponent {
   private account = this.detailsFacade.account;
 
   accountAccess = computed(() => {
-    const accountId = this.account()!.account.id;
-    return this.financeStore.accountShare()[accountId];
+    const accountId = this.account()?.account?.id;
+    if (!accountId) return [];
+    const share = this.financeStore.accountShare()[accountId];
+    return Array.isArray(share) ? share : [];
   });
 
   sendable = linkedSignal({

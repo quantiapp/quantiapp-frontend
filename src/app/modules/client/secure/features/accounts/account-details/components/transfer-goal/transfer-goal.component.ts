@@ -97,23 +97,27 @@ export class TransferGoalComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  private goals = computed(() => this.financeStore.goalsByAccountIdMap()[this.account().account.id]);
-  goalsSelectOptions: Signal<SelectOption[]> = computed(() => this.goals().map(g => ({ label: g.name, value: g.id })));
+  private goals = computed(() => {
+    const accId = this.account()?.account?.id;
+    return accId ? (this.financeStore.goalsByAccountIdMap()[accId] ?? []) : [];
+  });
+  goalsSelectOptions: Signal<SelectOption[]> = computed(() => (this.goals() ?? []).map(g => ({ label: g.name, value: g.id })));
   accountsGroupSelect: Signal<SelectGroup[]> = computed(() => {
-    const accountsExceptCurrent = this.financeStore.accounts().filter(a => a.id !== this.account().account.id);
+    const accId = this.account()?.account?.id;
+    const accountsExceptCurrent = (this.financeStore.accounts() ?? []).filter(a => a.id !== accId);
     
     const myAccounts: SelectGroup = {
       label: 'Suas contas',
-      options: [...accountsExceptCurrent.map(a => ({ label: a.name, value: a.id }))]
-    }
+      options: accountsExceptCurrent.map(a => ({ label: a.name, value: a.id }))
+    };
 
     const sharedAccount: SelectGroup = {
       label: 'Partilhas consigo',
-      options: [ ...this.financeStore.shared_accounts().map(a => ({ label: a.name, value: a.id })) ]
-    }
+      options: (this.financeStore.shared_accounts() ?? []).map(a => ({ label: a.name, value: a.id }))
+    };
 
-    return [ myAccounts, sharedAccount ]
-  })
+    return [ myAccounts, sharedAccount ];
+  });
 
   ngOnInit(): void {
     this.transferGoalFormGroup = new FormGroup({

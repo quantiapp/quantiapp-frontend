@@ -104,7 +104,12 @@ export class AccountShareComponent {
 
   accountSn = computed(() => this.financeStore.accountsMap()[this.accountId()]);
 
-  accountAccess = computed(() => this.financeStore.accountShare()[this.accountSn().id] ?? []);
+  accountAccess = computed(() => {
+    const acc = this.accountSn();
+    if (!acc) return [];
+    const share = this.financeStore.accountShare()[acc.id];
+    return Array.isArray(share) ? share : [];
+  });
 
   searchedUser = signal<User | null>(null);
   newShareSection: Signal<'search-user' | 'user-permissions'> = computed(() => (this.searchedUser() === null) ? 'search-user' : 'user-permissions');
@@ -135,7 +140,7 @@ export class AccountShareComponent {
   }
 
   addUser(): void {
-    if(!this.accountSn().share_account){
+    if(!this.accountSn()?.share_account){
       this.openSuggestionDialog.set(true);
       return;
     }
