@@ -10,6 +10,7 @@ import { SubmitableButton } from "@shared/directives/submitable-button";
 import { SelectComponent, SelectOption } from "@shared/components/forms/select.component";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UpdateAccountDTO } from '@core/dtos/account.dto';
+import { PopupService } from '@core/services/pop-up.service';
 
 @Component({
   selector: 'app-account-currency',
@@ -83,8 +84,14 @@ export class AccountCurrencyComponent implements OnInit {
 
     const dto = new UpdateAccountDTO({ currency_id: currency });
     this.facade.edit(this.account().account.id, dto).pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.isUpdatingAccountCurrency.set(false))).subscribe({
-      next: response => {},
-      error: error => {}
+      next: () => {
+        PopupService.success("Moeda da conta atualizada com sucesso!");
+        this.formGroup.markAsPristine();
+      },
+      error: () => {
+        PopupService.error("Erro ao atualizar moeda da conta.");
+      }
     });
   }
 }
+

@@ -10,6 +10,7 @@ import { Darkable } from "@shared/directives/darkable";
 import { ControlCharCounterUi } from "@shared/ui/input-char-counter/input-char-counter.ui";
 import { ToggleComponent } from "@shared/components/forms/toggle.component";
 import { AccountAccess } from '@core/models/base-account.model';
+import { PopupService } from '@core/services/pop-up.service';
 
 @Component({
   selector: 'app-account-share-form',
@@ -92,6 +93,7 @@ import { AccountAccess } from '@core/models/base-account.model';
         </div>
 
       </form>
+    </div>
   `,
   styles: ``
 })
@@ -99,6 +101,7 @@ export class AccountShareFormComponent implements OnInit {
 
   user = input.required<User>();
   accountId = input.required<string>();
+  onSuccess = output<void>();
 
   isSharingWithNewUser = signal<boolean>(false);
   addUserFormGroup = new FormGroup<any>({});
@@ -146,11 +149,12 @@ export class AccountShareFormComponent implements OnInit {
         this.isSharingWithNewUser.set(false);
       })
     ).subscribe({
-      next: response => {
-        console.log(response)
+      next: () => {
+        PopupService.success("Conta partilhada com sucesso!");
+        this.onSuccess.emit();
       },
-      error: error => {
-        console.error(error)
+      error: () => {
+        PopupService.error("Erro ao partilhar conta. Tente novamente.");
       }
     })
   }

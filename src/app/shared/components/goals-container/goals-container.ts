@@ -33,8 +33,8 @@ import { RouterLink } from "@angular/router";
             Nova meta
           </button>
         </ng-template>
-        <ng-template #panel>
-          <app-create-goal></app-create-goal>
+        <ng-template #panel let-close="close">
+          <app-create-goal (onSuccess)="close()"></app-create-goal>
         </ng-template>
       </q-drawer>
     </div>

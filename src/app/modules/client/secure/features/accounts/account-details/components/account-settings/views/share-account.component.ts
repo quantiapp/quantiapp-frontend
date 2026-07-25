@@ -11,6 +11,7 @@ import { Darkable } from "@shared/directives/darkable";
 import { ToggleComponent } from "@shared/components/forms/toggle.component";
 import { SubmitableButton } from "@shared/directives/submitable-button";
 import { UpdateAccountDTO } from '@core/dtos/account.dto';
+import { PopupService } from '@core/services/pop-up.service';
 
 @Component({
   selector: 'app-share-account',
@@ -80,8 +81,14 @@ export class ShareAccountComponent implements OnInit {
 
     const dto = new UpdateAccountDTO({ share_account: share });
     this.facade.edit(this.account().account.id, dto).pipe(finalize(() => this.isEnablingShare.set(false))).subscribe({
-      next: response => {},
-      error: error => {}
+      next: () => {
+        PopupService.success("Partilha de conta atualizada com sucesso!");
+        this.formGroup.markAsPristine();
+      },
+      error: () => {
+        PopupService.error("Erro ao atualizar partilha de conta.");
+      }
     });
   }
 }
+

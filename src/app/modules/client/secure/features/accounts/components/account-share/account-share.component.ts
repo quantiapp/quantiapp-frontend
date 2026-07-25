@@ -80,7 +80,7 @@ import { AccountShareFormComponent } from "./account-share-form/account-share-fo
         @if(newShareSection() === 'search-user') {
           <app-search-user (userFoundEmitter)="searchedUserHandler($event)"></app-search-user>
         } @else {
-          <app-account-share-form [accountId]="accountId()" [user]="searchedUser()!"></app-account-share-form>
+          <app-account-share-form [accountId]="accountId()" [user]="searchedUser()!" (onSuccess)="openAddUserDrawer.set(false)"></app-account-share-form>
         }
       </ng-template>
     </q-drawer>
@@ -161,7 +161,7 @@ export class AccountShareComponent {
     if(this.isRemovingUser()) return;
 
     PopupService.confirm(
-      `Deseja realmente parar de partilhar esta conta com o ${user.name ?? user.username}`,
+      `Deseja realmente parar de partilhar esta conta com o ${user.name ?? user.username}?`,
       () => this.removeUser(user.id)
     )
   }
@@ -169,12 +169,13 @@ export class AccountShareComponent {
   removeUser(id: string): void {
     this.isRemovingUser.set(true);
     this.facade.removeUser(id, this.accountId()).pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.isRemovingUser.set(false))).subscribe({
-      next: response => {
-        console.log(response)
+      next: () => {
+        PopupService.success("Utilizador removido da partilha com sucesso.");
       },
-      error: error => {
-        console.error(error)
+      error: () => {
+        PopupService.error("Erro ao remover utilizador da partilha.");
       }
     })
   }
 }
+

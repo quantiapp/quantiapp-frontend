@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, input, OnInit, Signal, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, OnInit, output, Signal, signal } from '@angular/core';
 import { TheAccount } from '../../details.page';
 import { SpinnerUi } from "@shared/ui/spinner/spinner.ui";
 import { Darkable } from "@shared/directives/darkable";
@@ -10,6 +10,7 @@ import { finalize } from 'rxjs';
 import { AccountFacade } from '../../../account.facade';
 import { SelectComponent, SelectGroup, SelectOption } from "@shared/components/forms/select.component";
 import { FinanceStore } from '@core/data/finance-store.data';
+import { PopupService } from '@core/services/pop-up.service';
 
 @Component({
   selector: 'app-transfer-goal',
@@ -87,6 +88,7 @@ import { FinanceStore } from '@core/data/finance-store.data';
 })
 export class TransferGoalComponent implements OnInit {
   account = input.required<TheAccount>();
+  onSuccess = output<void>();
 
   isTransferingGoal = signal<boolean>(false);
   transferGoalFormGroup = new FormGroup<any>({});
@@ -136,12 +138,14 @@ export class TransferGoalComponent implements OnInit {
         this.isTransferingGoal.set(false);
       })
     ).subscribe({
-      next: response => {
-        console.log(response)
+      next: () => {
+        PopupService.success("Meta transferida com sucesso!");
+        this.onSuccess.emit();
       },
-      error: error => {
-        console.error(error)
+      error: () => {
+        PopupService.error("Erro ao transferir meta. Tente novamente.");
       }
     })
   }
 }
+

@@ -144,7 +144,7 @@ import { UpdateAccountDTO } from '@core/dtos/account.dto';
 
     <q-drawer [(visible)]="openTransferGoalDrawer">
       <ng-template #panel>
-        <app-transfer-goal [account]="account()"></app-transfer-goal>
+        <app-transfer-goal [account]="account()" (onSuccess)="openTransferGoalDrawer.set(false)"></app-transfer-goal>
       </ng-template>
     </q-drawer>
       

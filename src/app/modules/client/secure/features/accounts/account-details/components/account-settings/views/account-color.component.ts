@@ -9,6 +9,7 @@ import { finalize } from 'rxjs';
 import { Darkable } from "@shared/directives/darkable";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UpdateAccountDTO } from '@core/dtos/account.dto';
+import { PopupService } from '@core/services/pop-up.service';
 
 @Component({
   selector: 'app-account-color',
@@ -78,8 +79,14 @@ export class AccountColorComponent implements OnInit {
 
     const dto = new UpdateAccountDTO({ color });
     this.facade.edit(this.account().account.id, dto).pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.isUpdatingAccountColor.set(false))).subscribe({
-      next: response => {},
-      error: error => {}
+      next: () => {
+        PopupService.success("Cor da conta atualizada com sucesso!");
+        this.formGroup.markAsPristine();
+      },
+      error: () => {
+        PopupService.error("Erro ao atualizar cor da conta.");
+      }
     });
   }
 }
+

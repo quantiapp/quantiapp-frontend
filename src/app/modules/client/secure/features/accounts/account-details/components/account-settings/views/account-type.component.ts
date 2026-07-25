@@ -13,6 +13,7 @@ import { MotionedHeight } from "@shared/directives/motioned-height";
 import { Darkable } from "@shared/directives/darkable";
 import { ClickHandler } from '@core/services/click-handler.service';
 import { UpdateAccountDTO } from '@core/dtos/account.dto';
+import { PopupService } from '@core/services/pop-up.service';
 
 @Component({
   selector: 'app-account-type',
@@ -89,9 +90,14 @@ export class AccountTypeComponent implements OnInit {
 
     const dto = new UpdateAccountDTO({ account_type_id: type });
     this.facade.edit(this.account().account.id, dto).pipe(finalize(() => this.isUpdatingAccountType.set(false))).subscribe({
-      next: response => {},
-      error: error => {}
+      next: () => {
+        PopupService.success("Tipo de conta atualizado com sucesso!");
+        this.formGroup.markAsPristine();
+      },
+      error: () => {
+        PopupService.error("Erro ao atualizar tipo de conta.");
+      }
     });
   }
-
 }
+

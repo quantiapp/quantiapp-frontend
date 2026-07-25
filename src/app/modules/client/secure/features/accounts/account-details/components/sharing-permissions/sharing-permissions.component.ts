@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { SubmitableButton } from "@shared/directives/submitable-button";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PopupService } from '@core/services/pop-up.service';
 
 @Component({
   selector: 'app-sharing-permissions',
@@ -114,7 +115,14 @@ export class SharingPermissionsComponent {
     this.accountShareFacade.updateUserPermissions(this.sendable()[index]).pipe(
       takeUntilDestroyed(this.destroyRef),
       finalize(() => this.isUpdatingPermissions.set(false))
-    ).subscribe({});
+    ).subscribe({
+      next: () => {
+        PopupService.success("Permissões atualizadas com sucesso!");
+      },
+      error: () => {
+        PopupService.error("Erro ao atualizar permissões.");
+      }
+    });
   }
 
   hasChanges(index: number): boolean {
@@ -132,3 +140,4 @@ export class SharingPermissionsComponent {
     this.sendable()[index].permissions = this.accountAccess()[index].permissions;
   }
 }
+
