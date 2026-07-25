@@ -117,9 +117,13 @@ export class SearchUserComponent implements OnInit {
       next: response => {
         this.userFoundEmitter.emit(response);
       },
-      error: error => {
-        if(error.code === HttpStatusCode.NotFound) this.notFoundUser.set(true);
+      error: (error) => {
+        if (error?.status === HttpStatusCode.NotFound || error?.status === 404 || error?.error?.code === 404 || error?.code === 404) {
+          this.notFoundUser.set(true);
+        } else {
+          this.notFoundUser.set(true);
+        }
       }
-    })
+    });
   }
 }
