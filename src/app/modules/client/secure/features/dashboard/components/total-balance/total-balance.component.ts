@@ -74,7 +74,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
       </ng-container>
       <ng-container content>
         <div class="card-content">
-          <p class="text-[1.688rem] font-bold text-(color:--secondary) text-shadow-[0px_3px_4px_rgba(0,0,0,0.12)]" appDarkable="dark:text-(color:--dm-secondary)">
+          <p class="text-[1.688rem] font-bold text-(color:--secondary) value-text-shadow" appDarkable="dark:text-(color:--dm-secondary)">
             {{ summary().exchanges.user_currency.code }} {{ summary().total_balance | money }}
           </p>
         </div>

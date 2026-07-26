@@ -92,7 +92,7 @@ import { CreateTransactionComponent } from '@client/secure/features/transactions
           </div>
         }
         <div class="account-balance w-fit mx-auto mt-4 relative">
-          <p class=" text-[2rem] text-(--secondary) font-bold text-shadow-[0px_3px_4px_rgba(0,0,0,0.12)] text-center">
+          <p class=" text-[2rem] text-(--secondary) font-bold value-text-shadow text-center">
             {{ account().account.can_see_balance ? (account()!.account.balance | money ) : '**********,00' }}
           </p>
         </div>

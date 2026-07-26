@@ -64,7 +64,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
                   </p>
                 }
                 <p
-                class="text-[1.688rem] font-bold text-shadow-[0px_3px_4px_rgba(0,0,0,0.12)]"
+                class="text-[1.688rem] font-bold value-text-shadow"
                 [style.color]="item.color"
                 appDarkable="dark:text-(color:--dm-secondary)"
                 >
