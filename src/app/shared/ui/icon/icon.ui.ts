@@ -1,4 +1,5 @@
 import { Component, computed, input, signal } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-icon',
@@ -20,5 +21,5 @@ export class IconUi {
   key = input.required<string>();
   colorAttr = input.required<'stroke' | 'fill'>();
   now = signal<number>(0); // Date.now()
-  spriteUrl = computed(() => `/icons/sprites.svg?v=${this.now()}#${ this.key() }`);
+  spriteUrl = computed(() => `${environment.server}/api/sprites.svg?v=${this.now()}#${ this.key() }`);
 }
