@@ -21,5 +21,5 @@ export class IconUi {
   key = input.required<string>();
   colorAttr = input.required<'stroke' | 'fill'>();
   now = signal<number>(0); // Date.now()
-  spriteUrl = computed(() => `${environment.server}/api/sprites.svg?v=${this.now()}#${ this.key() }`);
+  spriteUrl = computed(() => `#${ this.key() }`);
 }

@@ -5,8 +5,10 @@ import * as AOS from "aos";
 import { LoadingDataUi } from "@client/secure/ui/loading-data.ui";
 import { PopupUi } from "@shared/ui/popup/popup.ui";
 import { ThemeService } from '@core/services/theme.service';
-
 import { SupabaseService } from '@core/services/supabase.service';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +21,9 @@ export class App implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
   private supabaseService = inject(SupabaseService);
+  private http = inject(HttpClient);
+  private sanitizer = inject(DomSanitizer);
+  svgSprites = signal<SafeHtml>('');
 
   isResolving = computed(() => {
     const nav = this.router.currentNavigation();
@@ -55,7 +60,19 @@ export class App implements OnInit {
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.themeService.initTheme();
+      this.loadSprites();
     }
   }
 
+  loadSprites(): void {
+    this.http.get(`${environment.server}/api/sprites.svg`, { responseType: 'text' })
+      .subscribe({
+        next: (svg) => {
+          this.svgSprites.set(this.sanitizer.bypassSecurityTrustHtml(svg));
+        },
+        error: (err) => {
+          console.error('Falha ao carregar os ícones dinâmicos do backend:', err);
+        }
+      });
+  }
 }
