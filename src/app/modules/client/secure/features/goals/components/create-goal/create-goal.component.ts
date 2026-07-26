@@ -238,6 +238,10 @@ export class CreateGoalComponent implements OnInit {
     ).subscribe({
       next: () => {
         PopupService.success("Meta criada com sucesso!");
+        this.createGoalFormGroup.reset({
+          trackProgress: true,
+          account: this.defaultAccountId() || null
+        });
         this.onSuccess.emit();
       },
       error: () => {

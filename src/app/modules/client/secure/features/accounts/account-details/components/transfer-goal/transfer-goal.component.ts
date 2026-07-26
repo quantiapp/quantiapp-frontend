@@ -144,6 +144,9 @@ export class TransferGoalComponent implements OnInit {
     ).subscribe({
       next: () => {
         PopupService.success("Meta transferida com sucesso!");
+        this.transferGoalFormGroup.reset({
+          source_account: this.account().account.name
+        });
         this.onSuccess.emit();
       },
       error: () => {

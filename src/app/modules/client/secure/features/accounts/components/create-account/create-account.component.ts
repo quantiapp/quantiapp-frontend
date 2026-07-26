@@ -160,6 +160,7 @@ export class CreateAccountComponent implements OnInit {
     ).subscribe({
       next: () => {
         PopupService.success("Conta criada com sucesso!");
+        this.createAccountFormGroup.reset({ accountColor: '#F1C40F' });
         this.onSuccess.emit();
       },
       error: () => {

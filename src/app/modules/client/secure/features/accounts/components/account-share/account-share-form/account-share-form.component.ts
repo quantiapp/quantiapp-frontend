@@ -151,11 +151,18 @@ export class AccountShareFormComponent implements OnInit {
     ).subscribe({
       next: () => {
         PopupService.success("Conta partilhada com sucesso!");
+        this.addUserFormGroup.reset({
+          user: this.user().name,
+          incomeTransaction: false,
+          outcomeTransaction: false,
+          canSeeAmount: true,
+          notes: ''
+        });
         this.onSuccess.emit();
       },
       error: () => {
         PopupService.error("Erro ao partilhar conta. Tente novamente.");
       }
-    })
+    });
   }
 }

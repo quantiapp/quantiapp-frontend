@@ -387,6 +387,12 @@ export class CreateTransactionComponent implements OnInit {
     ).subscribe({
       next: () => {
         PopupService.success("Transação registada com sucesso!");
+        this.createTransactionFormGroup.reset({
+          type: 'income',
+          date: new Date().toISOString().substring(0, 10),
+          destinationAccount: this.defaultAccountId() || null,
+          destinationGoal: this.defaultGoalId() || null
+        });
         this.onSuccess.emit();
       },
       error: () => {
