@@ -24,11 +24,21 @@ export class UserStore {
 
     loadUser(data: User | null) {
         this._user.set(data);
+        if (data?.plan_limits) {
+            this.planLimits.set(data.plan_limits);
+        }
         this.isUserLoaded.set(true);
     }
 
     updateLocalUser(changes: Partial<User>) {
         this._user.update(user => user ? { ...user, ...changes } : null);
+        if (changes.plan_limits) {
+            this.planLimits.set(changes.plan_limits);
+        }
+    }
+
+    setPlanLimits(limits: PlanLimits) {
+        this.planLimits.set(limits);
     }
 
     loadSettings(data: UserSetting | null) {
