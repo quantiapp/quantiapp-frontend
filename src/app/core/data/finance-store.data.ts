@@ -245,15 +245,231 @@ export class FinanceStore {
     }
 
     addTransaction(transaction: BaseTransaction) {
-        this._transactions.update(list => [...list, transaction]);
+        this._transactions.update(list => [transaction, ...list]);
+        this._latest_transactions.update(list => [transaction, ...list]);
+
+        if (transaction.source?.id) {
+            const srcId = transaction.source.id;
+            if (transaction.source.type === 'goal') {
+                this._transactionsByGoalId.update(curr => ({
+                    ...curr,
+                    [srcId]: [transaction, ...(curr[srcId] || [])]
+                }));
+            }
+            const goal = this._goals().find(g => g.id === srcId);
+            const accId = goal?.account_id || (transaction.source.type === 'account' ? srcId : null);
+            if (accId) {
+                this._transactionsByAccountId.update(curr => ({
+                    ...curr,
+                    [accId]: [transaction, ...(curr[accId] || [])]
+                }));
+            }
+        }
+        if (transaction.destination?.id) {
+            const destId = transaction.destination.id;
+            if (transaction.destination.type === 'goal') {
+                this._transactionsByGoalId.update(curr => ({
+                    ...curr,
+                    [destId]: [transaction, ...(curr[destId] || [])]
+                }));
+            }
+            const goal = this._goals().find(g => g.id === destId);
+            const accId = goal?.account_id || (transaction.destination.type === 'account' ? destId : null);
+            if (accId) {
+                this._transactionsByAccountId.update(curr => ({
+                    ...curr,
+                    [accId]: [transaction, ...(curr[accId] || [])]
+                }));
+            }
+        }
+
+        this.applyBalanceEffects(transaction);
     }
 
     updateLocalTransaction(id: string, changes: Partial<BaseTransaction>) {
-        this._transactions.update(list => list.map(transaction => transaction.id === id ? { ...transaction, ...changes } : transaction));
+        const oldTx = this._transactions().find(t => t.id === id) || this._latest_transactions().find(t => t.id === id);
+        if (!oldTx) return;
+
+        this.revertBalanceEffects(oldTx);
+
+        const updatedTx = { ...oldTx, ...changes };
+        this._transactions.update(list => list.map(t => t.id === id ? updatedTx : t));
+        this._latest_transactions.update(list => list.map(t => t.id === id ? updatedTx : t));
+
+        this.applyBalanceEffects(updatedTx);
     }
 
     removeLocalTransaction(id: string) {
-        this._transactions.update(list => list.filter(transaction => transaction.id !== id));
+        const transaction = this._transactions().find(t => t.id === id) || this._latest_transactions().find(t => t.id === id);
+        if (!transaction) return;
+
+        this._transactions.update(list => list.filter(t => t.id !== id));
+        this._latest_transactions.update(list => list.filter(t => t.id !== id));
+
+        if (transaction.source?.id) {
+            const srcId = transaction.source.id;
+            this._transactionsByGoalId.update(curr => ({
+                ...curr,
+                [srcId]: (curr[srcId] || []).filter(t => t.id !== id)
+            }));
+            const goal = this._goals().find(g => g.id === srcId);
+            const accId = goal?.account_id || (transaction.source.type === 'account' ? srcId : null);
+            if (accId) {
+                this._transactionsByAccountId.update(curr => ({
+                    ...curr,
+                    [accId]: (curr[accId] || []).filter(t => t.id !== id)
+                }));
+            }
+        }
+        if (transaction.destination?.id) {
+            const destId = transaction.destination.id;
+            this._transactionsByGoalId.update(curr => ({
+                ...curr,
+                [destId]: (curr[destId] || []).filter(t => t.id !== id)
+            }));
+            const goal = this._goals().find(g => g.id === destId);
+            const accId = goal?.account_id || (transaction.destination.type === 'account' ? destId : null);
+            if (accId) {
+                this._transactionsByAccountId.update(curr => ({
+                    ...curr,
+                    [accId]: (curr[accId] || []).filter(t => t.id !== id)
+                }));
+            }
+        }
+
+        this.revertBalanceEffects(transaction);
+    }
+
+    private applyBalanceEffects(transaction: BaseTransaction) {
+        const amount = transaction.amount;
+
+        if (transaction.source) {
+            if (transaction.source.type === 'goal') {
+                const goalId = transaction.source.id;
+                this._goals.update(goals => goals.map(g => {
+                    if (g.id === goalId) {
+                        const newAmount = g.current_amount - amount;
+                        const excess_amount = newAmount > g.target_amount ? newAmount - g.target_amount : 0;
+                        return { ...g, current_amount: newAmount, excess_amount, last_transaction: transaction };
+                    }
+                    return g;
+                }));
+                const goal = this._goals().find(g => g.id === goalId);
+                if (goal) {
+                    this._accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance - amount } : a
+                    ));
+                    this._shared_accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance - amount } : a
+                    ));
+                }
+            } else if (transaction.source.type === 'account') {
+                const accountId = transaction.source.id;
+                this._accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance - amount } : a
+                ));
+                this._shared_accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance - amount } : a
+                ));
+            }
+        }
+
+        if (transaction.destination) {
+            if (transaction.destination.type === 'goal') {
+                const goalId = transaction.destination.id;
+                this._goals.update(goals => goals.map(g => {
+                    if (g.id === goalId) {
+                        const newAmount = g.current_amount + amount;
+                        const excess_amount = newAmount > g.target_amount ? newAmount - g.target_amount : 0;
+                        return { ...g, current_amount: newAmount, excess_amount, last_transaction: transaction };
+                    }
+                    return g;
+                }));
+                const goal = this._goals().find(g => g.id === goalId);
+                if (goal) {
+                    this._accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance + amount } : a
+                    ));
+                    this._shared_accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance + amount } : a
+                    ));
+                }
+            } else if (transaction.destination.type === 'account') {
+                const accountId = transaction.destination.id;
+                this._accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance + amount } : a
+                ));
+                this._shared_accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance + amount } : a
+                ));
+            }
+        }
+    }
+
+    private revertBalanceEffects(transaction: BaseTransaction) {
+        const amount = transaction.amount;
+
+        if (transaction.source) {
+            if (transaction.source.type === 'goal') {
+                const goalId = transaction.source.id;
+                this._goals.update(goals => goals.map(g => {
+                    if (g.id === goalId) {
+                        const newAmount = g.current_amount + amount;
+                        const excess_amount = newAmount > g.target_amount ? newAmount - g.target_amount : 0;
+                        return { ...g, current_amount: newAmount, excess_amount };
+                    }
+                    return g;
+                }));
+                const goal = this._goals().find(g => g.id === goalId);
+                if (goal) {
+                    this._accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance + amount } : a
+                    ));
+                    this._shared_accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance + amount } : a
+                    ));
+                }
+            } else if (transaction.source.type === 'account') {
+                const accountId = transaction.source.id;
+                this._accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance + amount } : a
+                ));
+                this._shared_accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance + amount } : a
+                ));
+            }
+        }
+
+        if (transaction.destination) {
+            if (transaction.destination.type === 'goal') {
+                const goalId = transaction.destination.id;
+                this._goals.update(goals => goals.map(g => {
+                    if (g.id === goalId) {
+                        const newAmount = g.current_amount - amount;
+                        const excess_amount = newAmount > g.target_amount ? newAmount - g.target_amount : 0;
+                        return { ...g, current_amount: newAmount, excess_amount };
+                    }
+                    return g;
+                }));
+                const goal = this._goals().find(g => g.id === goalId);
+                if (goal) {
+                    this._accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance - amount } : a
+                    ));
+                    this._shared_accounts.update(accounts => accounts.map(a => 
+                        a.id === goal.account_id ? { ...a, balance: a.balance - amount } : a
+                    ));
+                }
+            } else if (transaction.destination.type === 'account') {
+                const accountId = transaction.destination.id;
+                this._accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance - amount } : a
+                ));
+                this._shared_accounts.update(accounts => accounts.map(a => 
+                    a.id === accountId ? { ...a, balance: a.balance - amount } : a
+                ));
+            }
+        }
     }
 
     loadLatestTransactions(data: BaseTransaction[]) {
@@ -262,7 +478,7 @@ export class FinanceStore {
     }
 
     addLatestTransaction(transaction: BaseTransaction) {
-        this._latest_transactions.update(list => [...list, transaction]);
+        this._latest_transactions.update(list => [transaction, ...list]);
     }
 
     updateLocalLatestTransaction(id: string, changes: Partial<BaseTransaction>) {
