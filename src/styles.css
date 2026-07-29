@@ -188,12 +188,12 @@ textarea.ng-invalid.ng-touched{
     background-color: var(--account-color);
 }
 .dark .dynamic-bg {
-    background-color: color-mix(in srgb, var(--account-color) 60%, white);
+    background-color: color-mix(in srgb, var(--account-color) 90%, white);
 }
 
 .dynamic-text {
     color: var(--account-color);
 }
 .dark .dynamic-text {
-    color: color-mix(in srgb, var(--account-color) 70%, white);
+    color: color-mix(in srgb, var(--account-color) 90%, white);
 }
