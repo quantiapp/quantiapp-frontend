@@ -239,7 +239,7 @@ import { EditTransactionComponent } from '../edit-transaction/edit-transaction.c
       </div>
 
       <div class="description flex flex-col gap-2.5">
-        <label class="text-sm text-(--secondary)/60" appDarkable="dark:text-(--dm-secondary)/60">Descrição</label>
+        <label class="text-sm text-(--secondary)/60" appDarkable="dark:text-(--dm-secondary)/60">Nota</label>
         <div class="description-block border border-black/5 dark:border-white/5 rounded-[10px] w-full px-4 py-2.5 flex gap-4 justify-start items-stretch">
           <div class="block-content h-[70px] overflow-y-auto flex flex-col justify-between gap-2">
             <p class="description text-sm" appDarkable="dark:text-(color:--dm-secondary)/60">
