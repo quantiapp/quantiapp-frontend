@@ -24,28 +24,28 @@ import { PopupService } from '@core/services/pop-up.service';
 
       <form (submit)="submit()" [formGroup]="createTransactionFormGroup" class="panel-form flex gap-5 flex-col">
       
-        <!-- TÍTULO -->
-        <div class="form-control">
-          <q-control-char-counter [id]="'notes'" [control]="createTransactionFormGroup.get('notes')!" [limit]="30" [label]="'Título'">
-            <ng-template #templateInput let-onChangeFn="count">
-              <input
-              type="text"
-              id="notes"
-              class="bg-[#FAFAFA] text-sm border w-full border-black/5 text-(--secondary) placeholder:text-(--secondary)/60 py-2.5 px-4 rounded-[10px] focus:outline-(--primary)"
-              formControlName="notes" maxlength="30" minlength="5" placeholder="Devolução do dinheiro para ..." >
-            </ng-template>
-          </q-control-char-counter>
-        </div>
-
         <!-- DESCRIÇÃO -->
         <div class="form-control">
-          <q-control-char-counter [id]="'description'" [control]="createTransactionFormGroup.get('description')!" [limit]="50" [label]="'Descrição'">
+          <q-control-char-counter [id]="'description'" [control]="createTransactionFormGroup.get('description')!" [limit]="30" [label]="'Descrição'">
             <ng-template #templateInput let-onChangeFn="count">
               <input
               type="text"
               id="description"
               class="bg-[#FAFAFA] text-sm border w-full border-black/5 text-(--secondary) placeholder:text-(--secondary)/60 py-2.5 px-4 rounded-[10px] focus:outline-(--primary)"
-              formControlName="description" maxlength="50" minlength="5" placeholder="Poupança para a construção" >
+              formControlName="description" maxlength="30" minlength="5" placeholder="Breve descrição (ex: Almoço de negócios)" >
+            </ng-template>
+          </q-control-char-counter>
+        </div>
+
+        <!-- NOTA -->
+        <div class="form-control">
+          <q-control-char-counter [id]="'notes'" [control]="createTransactionFormGroup.get('notes')!" [limit]="50" [label]="'Nota'">
+            <ng-template #templateInput let-onChangeFn="count">
+              <input
+              type="text"
+              id="notes"
+              class="bg-[#FAFAFA] text-sm border w-full border-black/5 text-(--secondary) placeholder:text-(--secondary)/60 py-2.5 px-4 rounded-[10px] focus:outline-(--primary)"
+              formControlName="notes" maxlength="50" minlength="5" placeholder="Nota adicional (ex: Pago com cartão pessoal)" >
             </ng-template>
           </q-control-char-counter>
         </div>
@@ -275,9 +275,9 @@ export class CreateTransactionComponent implements OnInit {
     const initialGoal = this.defaultGoalId() || null;
 
     this.createTransactionFormGroup = new FormGroup({
-      'notes': new FormControl('', [ Validators.required, Validators.minLength(5), Validators.maxLength(30) ]),
+      'notes': new FormControl('', [ Validators.required, Validators.minLength(5), Validators.maxLength(50) ]),
       'type': new FormControl('income', [Validators.required ]),
-      'description': new FormControl('', [ Validators.required, Validators.minLength(5), Validators.maxLength(50) ]),
+      'description': new FormControl('', [ Validators.required, Validators.minLength(5), Validators.maxLength(30) ]),
       'amount': new FormControl(null, [ Validators.required ]),
       'sourceAccount': new FormControl(null, [ ]),
       'sourceGoal': new FormControl(null, [ ]),

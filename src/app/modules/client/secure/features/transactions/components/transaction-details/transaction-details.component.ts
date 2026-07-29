@@ -45,7 +45,7 @@ import { EditTransactionComponent } from '../edit-transaction/edit-transaction.c
     <div class="details-content flex gap-5 flex-col">
       <div class="main-details flex flex-col gap-2.5">
         <h1 class="text-lg font-medium" appDarkable="dark:text-(color:--dm-secondary)">
-          {{ transaction().notes }}
+          {{ transaction().description }}
         </h1>
         <p class="date text-sm text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/60">
           {{ transaction().date | formatDate: 'long'}}
@@ -243,7 +243,7 @@ import { EditTransactionComponent } from '../edit-transaction/edit-transaction.c
         <div class="description-block border border-black/5 dark:border-white/5 rounded-[10px] w-full px-4 py-2.5 flex gap-4 justify-start items-stretch">
           <div class="block-content h-[70px] overflow-y-auto flex flex-col justify-between gap-2">
             <p class="description text-sm" appDarkable="dark:text-(color:--dm-secondary)/60">
-              {{ transaction().description }}
+              {{ transaction().notes }}
             </p>
           </div>
         </div>
