@@ -53,6 +53,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
           @let concludedBg = '#FFF8E1';
           @let concludedTailwindBg = concluded ? 'bg-[#FFF8E1]!' : 'bg-white';
           @let highlightColor = '#FA9125';
+          @let current_color = !concluded ? item.account.color : highlightColor;
 
           <app-card [tailwindClassesArray]="['!w-[17.5rem]', concludedTailwindBg]">
             <ng-container header>
@@ -63,15 +64,15 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
                   </p>
                 </div>
                 <div class="icon text-white">
-                  <app-icon-container [key]="item.icon_key" [bgColor]="!concluded ? item.account.color : highlightColor"></app-icon-container>
+                  <app-icon-container [key]="item.icon_key" [bgColor]="current_color"></app-icon-container>
                 </div>
               </div>
             </ng-container>
             <ng-container content>
               <div class="card-content flex flex-col gap-2">
                 <div class="details flex justify-between items-center">
-                  <p class="text-xs font-medium uppercase duration-[.3s]"
-                  [style.color]="!concluded ? item.account.color : highlightColor">
+                  <p class="text-xs font-medium uppercase duration-[.3s] dynamic-text"
+                  [style.--account-color]="current_color">
                     {{ item.account.currency.code }}
                   </p>
                   @if(item.last_transaction){
@@ -96,7 +97,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
                     <div class="numbers flex justify-between items-end">
                       <div class="percentage">
                         <p class="text-xl font-bold text-[#202020]/20">
-                          <span class=" duration-[.3s]" [style.color]="!concluded ? item.account.color : highlightColor">
+                          <span class=" duration-[.3s] dynamic-text" [style.--account-color]="current_color">
                             {{ item.progress | mask: 'percent' : { suffix: '%' } }}
                           </span>
                         </p>
@@ -107,7 +108,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
                           class=" text-[#202020]/60 duration-[.3s]"
                           [appDarkable]="!concluded ? 'dark:text-(color:--dm-secondary)' : 'not-empty'"
                           >
-                            <span class="" [style.color]="item.account.color">
+                            <span class="dynamic-text" [style.--account-color]="item.account.color">
                               {{ (item.account.can_see_balance) ? (item.current_amount | money) : '*********,00' }}
                             </span>
                             / {{ item.target_amount | money }}
@@ -122,13 +123,13 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
                     </div>
                     <div class="progress-track mt-2">
                       <div class="thumb bg-[#F2F2F2] rounded-full w-full h-2 overflow-hidden">
-                        <div class="tracker h-full duration-[.3s]" [style.max-width.%]="item.progress" [style.background-color]="!concluded ? item.account.color : highlightColor"></div>
+                        <div class="tracker h-full duration-[.3s] dynamic-bg" [style.max-width.%]="item.progress" [style.--account-color]="current_color"></div>
                       </div>
                     </div>
                   </div>
                 } @else {
                   <div class="no-tracker py-2">
-                    <p class="text-xl font-bold" [style.color]="item.account.color" [appDarkable]="'dark:text-(color:--dm-secondary)'">
+                    <p class="text-xl font-bold dynamic-text" [style.--account-color]="item.account.color">
                       {{ (item.account.can_see_balance) ? (item.current_amount | money) : '*********,00' }}
                     </p>
                   </div>
@@ -139,7 +140,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
               <div class="ctas flex gap-[0.625rem] flex-wrap justify-start items-center">
                 <q-drawer>
                   <ng-template #invoker let-open="open">
-                    <button (click)="open()" class="text-sm flex gap-1 justify-center items-center text-white rounded-full px-2 py-2 duration-[.3s]" [style.background-color]="!concluded ? item.account.color : highlightColor">
+                    <button (click)="open()" class="text-sm flex gap-1 justify-center items-center text-white rounded-full px-2 py-2 duration-[.3s] dynamic-bg" [style.--account-color]="current_color">
                       <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.5 12.0001H12.5M12.5 12.0001H16.5M12.5 12.0001V16.0001M12.5 12.0001V8.0001M12.5 21.0001C7.52944 21.0001 3.5 16.9707 3.5 12.0001C3.5 7.02954 7.52944 3.0001 12.5 3.0001C17.4706 3.0001 21.5 7.02954 21.5 12.0001C21.5 16.9707 17.4706 21.0001 12.5 21.0001Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
