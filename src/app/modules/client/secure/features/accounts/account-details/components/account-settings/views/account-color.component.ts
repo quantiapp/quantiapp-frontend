@@ -83,8 +83,9 @@ export class AccountColorComponent implements OnInit {
         PopupService.success("Cor da conta atualizada com sucesso!");
         this.formGroup.markAsPristine();
       },
-      error: () => {
-        PopupService.error("Erro ao atualizar cor da conta.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao atualizar cor da conta.";
+        PopupService.error(errorMsg);
       }
     });
   }

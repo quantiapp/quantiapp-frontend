@@ -94,8 +94,9 @@ export class AccountTypeComponent implements OnInit {
         PopupService.success("Tipo de conta atualizado com sucesso!");
         this.formGroup.markAsPristine();
       },
-      error: () => {
-        PopupService.error("Erro ao atualizar tipo de conta.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao atualizar tipo de conta.";
+        PopupService.error(errorMsg);
       }
     });
   }

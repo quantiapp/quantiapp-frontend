@@ -85,8 +85,9 @@ export class ShareAccountComponent implements OnInit {
         PopupService.success("Partilha de conta atualizada com sucesso!");
         this.formGroup.markAsPristine();
       },
-      error: () => {
-        PopupService.error("Erro ao atualizar partilha de conta.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao atualizar partilha de conta.";
+        PopupService.error(errorMsg);
       }
     });
   }

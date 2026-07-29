@@ -149,8 +149,9 @@ export class TransferGoalComponent implements OnInit {
         });
         this.onSuccess.emit();
       },
-      error: () => {
-        PopupService.error("Erro ao transferir meta. Tente novamente.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao transferir meta. Tente novamente.";
+        PopupService.error(errorMsg);
       }
     })
   }

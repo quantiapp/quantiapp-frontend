@@ -160,8 +160,9 @@ export class AccountShareFormComponent implements OnInit {
         });
         this.onSuccess.emit();
       },
-      error: () => {
-        PopupService.error("Erro ao partilhar conta. Tente novamente.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao partilhar conta. Tente novamente.";
+        PopupService.error(errorMsg);
       }
     });
   }

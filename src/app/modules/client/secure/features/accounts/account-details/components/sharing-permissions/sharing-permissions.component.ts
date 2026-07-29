@@ -121,8 +121,9 @@ export class SharingPermissionsComponent {
       next: () => {
         PopupService.success("Permissões atualizadas com sucesso!");
       },
-      error: () => {
-        PopupService.error("Erro ao atualizar permissões.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao atualizar permissões.";
+        PopupService.error(errorMsg);
       }
     });
   }

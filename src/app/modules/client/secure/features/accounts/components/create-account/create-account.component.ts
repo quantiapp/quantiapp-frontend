@@ -163,8 +163,9 @@ export class CreateAccountComponent implements OnInit {
         this.createAccountFormGroup.reset({ accountColor: '#F1C40F' });
         this.onSuccess.emit();
       },
-      error: () => {
-        PopupService.error("Erro ao criar conta. Tente novamente.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao criar conta. Tente novamente.";
+        PopupService.error(errorMsg);
       }
     });
   }

@@ -395,8 +395,9 @@ export class CreateTransactionComponent implements OnInit {
         });
         this.onSuccess.emit();
       },
-      error: () => {
-        PopupService.error("Erro ao registar transação. Tente novamente.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao registar transação. Tente novamente.";
+        PopupService.error(errorMsg);
       }
     });
   }

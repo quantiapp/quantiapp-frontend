@@ -88,8 +88,9 @@ export class AccountCurrencyComponent implements OnInit {
         PopupService.success("Moeda da conta atualizada com sucesso!");
         this.formGroup.markAsPristine();
       },
-      error: () => {
-        PopupService.error("Erro ao atualizar moeda da conta.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao atualizar moeda da conta.";
+        PopupService.error(errorMsg);
       }
     });
   }

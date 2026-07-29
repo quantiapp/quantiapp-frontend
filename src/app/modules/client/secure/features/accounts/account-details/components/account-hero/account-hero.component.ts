@@ -201,8 +201,9 @@ export class AccountHeroComponent implements OnInit {
         PopupService.success("Nome da conta atualizado com sucesso!");
         closeDialogFn?.();
       },
-      error: () => {
-        PopupService.error("Erro ao atualizar nome da conta. Tente novamente.");
+      error: (err) => {
+        const errorMsg = err?.error?.message || err?.error?.error || "Erro ao atualizar nome da conta. Tente novamente.";
+        PopupService.error(errorMsg);
       }
     })
   }
