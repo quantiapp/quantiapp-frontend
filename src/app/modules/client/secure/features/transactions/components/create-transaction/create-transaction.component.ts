@@ -90,7 +90,7 @@ import { PopupService } from '@core/services/pop-up.service';
         </div>
 
         <!-- ORIGEM (CONTA & META) -->
-        @if (createTransactionFormGroup.get('type')?.value === 'expense' || createTransactionFormGroup.get('type')?.value === 'g2g') {
+        @if (createTransactionFormGroup.get('type')?.value === 'outcome' || createTransactionFormGroup.get('type')?.value === 'g2g') {
           <div class="form-control flex flex-col gap-2.5">
             <label for="#sourceAccount" class="text-sm text-(--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/60">Conta Origem</label>
             <q-select
@@ -265,7 +265,7 @@ export class CreateTransactionComponent implements OnInit {
       },
       {
         label: 'Gasto',
-        value: 'expense'
+        value: 'outcome'
       }
     ];
   });
@@ -327,9 +327,9 @@ export class CreateTransactionComponent implements OnInit {
     if (type === 'income') {
       destAcc.setValidators([Validators.required]);
       destGl.setValidators([Validators.required]);
-      sourceAcc.setValue(null);
-      sourceGl.setValue(null);
-    } else if (type === 'expense') {
+      destAcc.setValue(null);
+      destGl.setValue(null);
+    } else if (type === 'outcome') {
       sourceAcc.setValidators([Validators.required]);
       sourceGl.setValidators([Validators.required]);
       destAcc.setValue(null);
@@ -363,7 +363,7 @@ export class CreateTransactionComponent implements OnInit {
     if (type === 'income') {
       destination = this.createTransactionFormGroup.get('destinationGoal')?.value || 
                     this.createTransactionFormGroup.get('destinationAccount')?.value;
-    } else if (type === 'expense') {
+    } else if (type === 'outcome') {
       source = this.createTransactionFormGroup.get('sourceGoal')?.value || 
                this.createTransactionFormGroup.get('sourceAccount')?.value;
     } else if (type === 'g2g') {

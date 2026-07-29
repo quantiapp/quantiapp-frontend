@@ -13,7 +13,7 @@ export interface BaseTransaction {
 
 export interface BaseLastTransaction {
     amount: number,
-    type?: 'income' | 'expense' | 'g2g' | string,
+    type?: 'income' | 'outcome' | 'g2g' | string,
     from: 'inside' | 'outside' | string,
     source: EntityReference | null,
     destination: EntityReference | null,
@@ -34,4 +34,4 @@ export interface TransactionRegister {
     email: string
 }
 
-export type TransactionType = 'income' | 'expense' | 'g2g' | string;
+export type TransactionType = 'income' | 'outcome' | 'g2g' | string;
