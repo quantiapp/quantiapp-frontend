@@ -45,7 +45,7 @@ import { EditTransactionComponent } from '../edit-transaction/edit-transaction.c
     <div class="details-content flex gap-5 flex-col">
       <div class="main-details flex flex-col gap-2.5">
         <h1 class="text-lg font-medium" appDarkable="dark:text-(color:--dm-secondary)">
-          {{ transaction().description }}
+          {{ transaction().notes }}
         </h1>
         <p class="date text-sm text-(color:--secondary)/60" appDarkable="dark:text-(color:--dm-secondary)/60">
           {{ transaction().date | formatDate: 'long'}}
