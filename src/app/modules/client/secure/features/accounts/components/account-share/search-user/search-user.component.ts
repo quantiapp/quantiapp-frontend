@@ -23,6 +23,7 @@ import { User } from '@core/models/user.model';
           id="account_name"
           (change)="this.resetHasSearched()"
           class="bg-[#FAFAFA] text-sm border border-black/5 text-(--secondary) placeholder:text-(--secondary)/60 py-2.5 px-4 rounded-[10px] focus:outline-(--primary)"
+          appDarkable="dark:bg-(--dm-bg) dark:text-(--dm-secondary) dark:border-white/10"
           formControlName="userKey" placeholder="" >
         </div>
 
@@ -47,15 +48,15 @@ import { User } from '@core/models/user.model';
       @if(hasSearched() && this.notFoundUser()) {
 
         <div class="error-container py-12 flex flex-col gap-2.5 items-center justify-center">
-          <div class="icon">
+          <div class="icon text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">
             <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g clip-path="url(#clip0_316_1600)">
-              <path d="M9 39H15V47C15 47.552 15.448 48 16 48C16.552 48 17 47.552 17 47V39H20C20.552 39 21 38.552 21 38C21 37.448 20.552 37 20 37H17V35C17 34.448 16.552 34 16 34C15.448 34 15 34.448 15 35V37H10V27C10 26.448 9.552 26 9 26C8.448 26 8 26.448 8 27V38C8 38.552 8.448 39 9 39Z" fill="#202020" fill-opacity="0.6"/>
-              <path d="M40 39H46V47C46 47.552 46.448 48 47 48C47.552 48 48 47.552 48 47V39H51C51.552 39 52 38.552 52 38C52 37.448 51.552 37 51 37H48V35C48 34.448 47.552 34 47 34C46.448 34 46 34.448 46 35V37H41V27C41 26.448 40.552 26 40 26C39.448 26 39 26.448 39 27V38C39 38.552 39.448 39 40 39Z" fill="#202020" fill-opacity="0.6"/>
-              <path d="M29.5 48C33.084 48 36 45.084 36 41.5V32.5C36 28.916 33.084 26 29.5 26C25.916 26 23 28.916 23 32.5V41.5C23 45.084 25.916 48 29.5 48ZM25 32.5C25 30.019 27.019 28 29.5 28C31.981 28 34 30.019 34 32.5V41.5C34 43.981 31.981 46 29.5 46C27.019 46 25 43.981 25 41.5V32.5Z" fill="#202020" fill-opacity="0.6"/>
-              <path d="M0 0V14V60H60V14V0H0ZM2 2H58V12H2V2ZM58 58H2V14H58V58Z" fill="#202020" fill-opacity="0.6"/>
-              <path d="M54.293 3.293L52 5.586L49.707 3.293L48.293 4.707L50.586 7L48.293 9.293L49.707 10.707L52 8.414L54.293 10.707L55.707 9.293L53.414 7L55.707 4.707L54.293 3.293Z" fill="#202020" fill-opacity="0.6"/>
-              <path d="M3 11H42V3H3V11ZM5 5H40V9H5V5Z" fill="#202020" fill-opacity="0.6"/>
+              <path d="M9 39H15V47C15 47.552 15.448 48 16 48C16.552 48 17 47.552 17 47V39H20C20.552 39 21 38.552 21 38C21 37.448 20.552 37 20 37H17V35C17 34.448 16.552 34 16 34C15.448 34 15 34.448 15 35V37H10V27C10 26.448 9.552 26 9 26C8.448 26 8 26.448 8 27V38C8 38.552 8.448 39 9 39Z" fill="currentColor" fill-opacity="0.6"/>
+              <path d="M40 39H46V47C46 47.552 46.448 48 47 48C47.552 48 48 47.552 48 47V39H51C51.552 39 52 38.552 52 38C52 37.448 51.552 37 51 37H48V35C48 34.448 47.552 34 47 34C46.448 34 46 34.448 46 35V37H41V27C41 26.448 40.552 26 40 26C39.448 26 39 26.448 39 27V38C39 38.552 39.448 39 40 39Z" fill="currentColor" fill-opacity="0.6"/>
+              <path d="M29.5 48C33.084 48 36 45.084 36 41.5V32.5C36 28.916 33.084 26 29.5 26C25.916 26 23 28.916 23 32.5V41.5C23 45.084 25.916 48 29.5 48ZM25 32.5C25 30.019 27.019 28 29.5 28C31.981 28 34 30.019 34 32.5V41.5C34 43.981 31.981 46 29.5 46C27.019 46 25 43.981 25 41.5V32.5Z" fill="currentColor" fill-opacity="0.6"/>
+              <path d="M0 0V14V60H60V14V0H0ZM2 2H58V12H2V2ZM58 58H2V14H58V58Z" fill="currentColor" fill-opacity="0.6"/>
+              <path d="M54.293 3.293L52 5.586L49.707 3.293L48.293 4.707L50.586 7L48.293 9.293L49.707 10.707L52 8.414L54.293 10.707L55.707 9.293L53.414 7L55.707 4.707L54.293 3.293Z" fill="currentColor" fill-opacity="0.6"/>
+              <path d="M3 11H42V3H3V11ZM5 5H40V9H5V5Z" fill="currentColor" fill-opacity="0.6"/>
               </g>
               <defs>
               <clipPath id="clip0_316_1600">
@@ -64,7 +65,7 @@ import { User } from '@core/models/user.model';
               </defs>
             </svg>
           </div>
-          <p class="description max-w-64 text-(--secondary)/60 text-sm text-center">
+          <p class="description max-w-64 text-(--secondary)/60 text-sm text-center" appDarkable="dark:text-(--dm-secondary)/60">
             Não foi possível localizar um utilizador com esta chave
           </p>
         </div>
