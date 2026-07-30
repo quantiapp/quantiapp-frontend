@@ -1,14 +1,18 @@
 import { Component, inject, OnInit, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { PlanService } from '@core/services/plan.service';
 import { UserService } from '@core/services/user.service';
 import { UserStore } from '@core/data/user-store.data';
+import { FinanceStore } from '@core/data/finance-store.data';
 import { SubmitableButton } from '@shared/directives/submitable-button';
 import { IconContainerContainer } from '@shared/ui/icon/icon-container.container';
 import { BarSpinnerUi } from '@shared/ui/spinner/bar-spinner.ui';
 import { PopupService } from '@core/services/pop-up.service';
 import { Darkable } from '@shared/directives/darkable';
+import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
+import { ToggleComponent } from '@shared/components/forms/toggle.component';
+import { NgxMaskDirective } from 'ngx-mask';
 
 export interface Plan {
   id: string;
@@ -24,7 +28,7 @@ export interface Plan {
 @Component({
   selector: 'app-upgrade-plans',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SubmitableButton, IconContainerContainer, BarSpinnerUi, Darkable],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SubmitableButton, IconContainerContainer, BarSpinnerUi, Darkable, CustomCurrencyPipe, ToggleComponent, NgxMaskDirective],
   templateUrl: './upgrade-plans.component.html',
   styleUrls: ['./upgrade-plans.component.css']
 })
@@ -32,6 +36,7 @@ export class UpgradePlansComponent implements OnInit {
   private planService = inject(PlanService);
   private userService = inject(UserService);
   public userStore = inject(UserStore);
+  public financeStore = inject(FinanceStore);
 
   onSuccess = output<void>();
 
@@ -48,6 +53,32 @@ export class UpgradePlansComponent implements OnInit {
 
   getRemainingTrialDays(): number {
     return this.userStore.getRemainingTrialDays();
+  }
+
+  onBillingCycleToggle(isAnnual: boolean): void {
+    this.billingCycle.set(isAnnual ? 'annual' : 'monthly');
+  }
+
+  convertPlanPrice(price: number, planCurrencyCode: string): number {
+    const userCurrencyId = this.userStore.settings()?.currency_id;
+    if (!userCurrencyId) return price;
+
+    const currencyMap = this.financeStore.currenciesMap();
+    const userCurrency = currencyMap[userCurrencyId];
+    if (!userCurrency) return price;
+
+    const currencies = this.financeStore.currencies();
+    const planCurrency = currencies.find(c => c.code.toUpperCase() === planCurrencyCode.toUpperCase());
+    if (!planCurrency) return price;
+
+    const valueInBaseCurrency = price / planCurrency.rate_to_base;
+    return valueInBaseCurrency * userCurrency.rate_to_base;
+  }
+
+  getUserCurrencyCode(): string {
+    const userCurrencyId = this.userStore.settings()?.currency_id;
+    if (!userCurrencyId) return 'EUR';
+    return this.financeStore.currenciesMap()[userCurrencyId]?.code || 'EUR';
   }
 
   // Payment states
