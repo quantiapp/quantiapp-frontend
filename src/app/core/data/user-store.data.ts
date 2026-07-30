@@ -19,7 +19,8 @@ export class UserStore {
         plan_name: 'free',
         max_accounts: 2,
         max_goals_per_account: 3,
-        max_shares: 1
+        max_shares: 1,
+        has_offline_mode: false
     });
 
     loadUser(data: User | null) {

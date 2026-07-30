@@ -1,0 +1,24 @@
+{
+  "name": "QuantiAPP",
+  "short_name": "Quantia",
+  "theme_color": "#F1C40F",
+  "background_color": "#373737",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "pwa/brand-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "pwa/brand-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

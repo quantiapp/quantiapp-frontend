@@ -9,10 +9,12 @@ import { SupabaseService } from '@core/services/supabase.service';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { environment } from '../environments/environment';
+import { ConnectionService } from '@core/services/connection.service';
+import { SubmitableButton } from '@shared/directives/submitable-button';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoadingDataUi, PopupUi],
+  imports: [RouterOutlet, LoadingDataUi, PopupUi, SubmitableButton],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -23,7 +25,16 @@ export class App implements OnInit {
   private supabaseService = inject(SupabaseService);
   private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
+  private connectionService = inject(ConnectionService);
+
+  isOffline = this.connectionService.isOffline;
+  hasOfflineSupport = this.connectionService.hasOfflineSupport;
+
   svgSprites = signal<SafeHtml>('');
+
+  goToProfile(): void {
+    this.router.navigate(['/secure/profile']);
+  }
 
   isResolving = computed(() => {
     const nav = this.router.currentNavigation();

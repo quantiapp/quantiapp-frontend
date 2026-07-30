@@ -3,6 +3,7 @@ export interface PlanLimits {
     max_accounts: number;          // -1 for unlimited
     max_goals_per_account: number; // -1 for unlimited
     max_shares: number;            // -1 for unlimited
+    has_offline_mode?: boolean;
 }
 
 export interface User {

@@ -7,3 +7,47 @@
     <router-outlet></router-outlet>
 }
 <div [innerHTML]="svgSprites()" style="display: none;"></div>
+
+<!-- PWA Offline Management -->
+@if (isOffline()) {
+    @if (hasOfflineSupport()) {
+        <!-- Toast for Offline support enabled (Pro/Unlimited plans) -->
+        <div class="fixed bottom-6 left-[50%] translate-x-[-50%] z-150 flex items-center gap-3 bg-[#202020] text-white px-5 py-3 rounded-full border border-white/10 shadow-2xl animate-pulse">
+            <span class="flex h-2.5 w-2.5 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+            </span>
+            <p class="text-sm font-medium">Sem ligação. A trabalhar em modo offline.</p>
+        </div>
+    } @else {
+        <!-- Blocker overlay for Offline support disabled (Free plan) -->
+        <div class="fixed inset-0 z-200 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+            <div class="bg-white dark:bg-[#202020] border border-black/5 dark:border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl flex flex-col items-center gap-4 text-center">
+                <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center text-red-500">
+                    <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+                        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+                        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+                        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+                        <path d="M8.53 16.11A4 4 0 0 1 12 15a4 4 0 0 1 2 1"></path>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-bold text-[#202020] dark:text-[#ffffff]">Modo Offline Indisponível</h2>
+                <p class="text-sm text-[#202020]/60 dark:text-white/60">
+                    Acesso offline não está incluído no teu plano atual. Conecta-te à internet ou atualiza para o plano Pro para acederes aos teus dados e gerires as tuas finanças sem ligação.
+                </p>
+                <div class="w-full flex flex-col gap-2 mt-2">
+                    <button 
+                    (click)="goToProfile()" 
+                    appSubmitableButton
+                    tailwindClassBackgroundColor="bg-(color:--primary)"
+                    tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
+                    class="w-full text-[#202020] border border-[#C29B00] rounded-xl py-2.5 font-semibold cursor-pointer">
+                        Ver Planos
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+}

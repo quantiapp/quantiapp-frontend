@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { NgxMaskConfig, provideEnvironmentNgxMask } from "ngx-mask";
 import localePt from '@angular/common/locales/pt';
@@ -8,6 +8,7 @@ import { routes } from './app.routes';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
+import { provideServiceWorker } from '@angular/service-worker';
 
 const maskConfig: Partial<NgxMaskConfig> = { thousandSeparator: '.', decimalMarker: ',' }
 
@@ -21,6 +22,9 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor]))
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
   ]
 };
