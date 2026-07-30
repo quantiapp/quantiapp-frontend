@@ -83,7 +83,7 @@ import { ProfileFacade } from './profile.facade';
                 <app-icon-container [tailwindClassArray]="['p-0!']" [width]="22" [height]="22" [key]="'card'" [colorAttr]="'stroke'"></app-icon-container>
               </div>
               <div class="flex flex-col">
-                <span class="text-sm font-medium text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">Cartões</span>
+                <span class="text-sm font-medium text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">Contas</span>
                 <span class="text-xs text-(--secondary)/60" appDarkable="dark:text-(--dm-secondary)/60">{{ accountCount() }}</span>
               </div>
             </div>
