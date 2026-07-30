@@ -51,9 +51,10 @@ export class FinanceStoreViewModel {
     });
 
     accountsWithBalances: Signal<BaseAccountViewModel[]> = computed(() => {
+        const canSee = this.userStore.canSeeBalances();
         return this.financeStore.accounts().map(account => ({
             ...account,
-            can_see_balance: true,
+            can_see_balance: canSee,
             can_see_goals: true,
             can_see_transactions: true,
             income_transaction: true,
@@ -75,9 +76,10 @@ export class FinanceStoreViewModel {
     });
 
     sharedAccounts: Signal<BaseAccountViewModel[]> = computed(() => {
+        const canSee = this.userStore.canSeeBalances();
         return this.financeStore.shared_accounts().map(account => ({
             ...account,
-            can_see_balance: account.permissions?.can_see_amount ?? true,
+            can_see_balance: canSee ? (account.permissions?.can_see_amount ?? true) : false,
             can_see_goals: account.permissions?.can_see_goals ?? true,
             can_see_transactions: account.permissions?.can_see_transactions ?? true,
             income_transaction: account.permissions?.income_transaction ?? true,

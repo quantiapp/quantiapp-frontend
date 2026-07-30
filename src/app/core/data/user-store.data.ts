@@ -23,6 +23,21 @@ export class UserStore {
         has_offline_mode: false
     });
 
+    canSeeBalances = signal<boolean>(this.loadBalanceVisibility());
+
+    private loadBalanceVisibility(): boolean {
+        if (typeof window === 'undefined') return true;
+        return localStorage.getItem('quantia_can_see_balances') !== 'false';
+    }
+
+    toggleBalanceVisibility(): void {
+        const newValue = !this.canSeeBalances();
+        this.canSeeBalances.set(newValue);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('quantia_can_see_balances', String(newValue));
+        }
+    }
+
     constructor() {
         const cachedUser = this._user();
         if (cachedUser?.plan_limits) {
@@ -155,6 +170,7 @@ export class UserStore {
         if (typeof window !== 'undefined') {
             localStorage.removeItem('quantia_cache_user');
             localStorage.removeItem('quantia_cache_settings');
+            localStorage.removeItem('quantia_can_see_balances');
         }
     }
 }

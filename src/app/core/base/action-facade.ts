@@ -10,6 +10,7 @@ import { CurrencyService } from "@core/services/currency.service";
 import { UserService } from "@core/services/user.service";
 import { HttpSchema } from "@core/services/http-schema.service";
 import { Observable, of, finalize, catchError, tap } from "rxjs";
+import { ConnectionService } from "@core/services/connection.service";
 
 @Directive()
 export abstract class BaseActionFacade implements FacadeDispatchableAction {
@@ -21,6 +22,7 @@ export abstract class BaseActionFacade implements FacadeDispatchableAction {
     protected accountTypeService = inject(AccountTypeService);
     protected userService = inject(UserService);
     protected httpSchema = inject(HttpSchema);
+    protected connectionService = inject(ConnectionService);
 
     protected financeStore = inject(FinanceStore);
     protected userStore = inject(UserStore);
@@ -62,6 +64,10 @@ export abstract class BaseActionFacade implements FacadeDispatchableAction {
     }
 
     ignoreAction(deps?: any): boolean {
+        if (this.connectionService.isOffline()) {
+            return true;
+        }
+
         return  this.userStore.isUserLoaded() &&
                 this.userStore.isSettingsLoaded() &&
                 this.financeStore.isAccountsLoaded() &&

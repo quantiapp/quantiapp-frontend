@@ -1,22 +1,35 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { DialogComponent } from "@shared/components/dialog.component";
-import { SubmitableButton } from "@shared/directives/submitable-button";
 import { Darkable } from "@shared/directives/darkable";
 import { CardTemplate } from '@client/secure/ui/card.template';
 import { DashboardSummary } from '../../models';
 import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
 import { DrawerComponent } from "@shared/components/drawer.component";
 import { CreateTransactionComponent } from "@client/secure/features/transactions/components/create-transaction/create-transaction.component";
+import { UserStore } from '@core/data/user-store.data';
 
 @Component({
   selector: 'app-total-balance',
-  imports: [CardTemplate, DialogComponent, SubmitableButton, Darkable, CustomCurrencyPipe, DrawerComponent, CreateTransactionComponent],
+  imports: [CardTemplate, DialogComponent, Darkable, CustomCurrencyPipe, DrawerComponent, CreateTransactionComponent],
   template: `
     <app-card>
       <ng-container header>
-        <div class="header-content flex justify-between items-center">
-          <div class="card-name">
+        <div class="header-content flex justify-between items-center w-full">
+          <div class="card-name flex items-center gap-2">
             <p class="text-sm font-medium" appDarkable="dark:text-(color:--dm-secondary)">Balanço Geral</p>
+            <button (click)="userStore.toggleBalanceVisibility()" class="cursor-pointer text-(--secondary)/60 hover:text-(--secondary) transition-all p-0.5 rounded-full flex items-center justify-center" appDarkable="dark:text-(--dm-secondary)/60 dark:hover:text-(--dm-secondary)">
+              @if (userStore.canSeeBalances()) {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              } @else {
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              }
+            </button>
           </div>
           <div class="exchanges">
             <q-dialog>
@@ -59,10 +72,9 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
                     </div>
                   </div>
                   <div class="dialog-footer flex justify-end items-center">
-                    <button (click)="close()" appSubmitableButton
-                    tailwindClassBackgroundColor="bg-(color:--primary)/63"
-                    tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
-                    class="w-fit text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1 font-medium">
+                    <button (click)="close()"
+                    class="w-fit text-sm text-(--secondary) border border-(--secondary)/40 dark:border-(--dm-secondary)/40 rounded-[0.563rem] px-3 py-1 font-medium cursor-pointer"
+                    appDarkable="dark:text-(--dm-secondary)">
                       Fechar
                     </button>
                   </div>
@@ -75,7 +87,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
       <ng-container content>
         <div class="card-content">
           <p class="text-[1.688rem] font-bold text-(color:--secondary) value-text-shadow" appDarkable="dark:text-(color:--dm-secondary)">
-            {{ summary().exchanges.user_currency.code }} {{ summary().total_balance | money }}
+            {{ summary().exchanges.user_currency.code }} {{ userStore.canSeeBalances() ? (summary().total_balance | money) : '**********,00' }}
           </p>
         </div>
       </ng-container>
@@ -100,5 +112,5 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
 })
 export class TotalBalanceComponent {
   summary = input.required<DashboardSummary>();
+  public userStore = inject(UserStore);
 }
-
