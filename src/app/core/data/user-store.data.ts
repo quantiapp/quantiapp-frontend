@@ -1,6 +1,7 @@
 import { Injectable, Signal, signal } from "@angular/core";
 import { UserSetting } from "@core/models/user-settings.model";
 import { PlanLimits, User } from "@core/models/user.model";
+import { environment } from "@environments/environment";
 
 @Injectable({
     providedIn: 'root'
@@ -87,9 +88,10 @@ export class UserStore {
 
     activateTrial(): void {
         if (typeof window === 'undefined') return;
-        const sevenDaysFromNow = new Date();
-        sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-        localStorage.setItem('quantia_trial_end', sevenDaysFromNow.toISOString());
+        const trialDays = environment.trialDays || 30;
+        const trialEnd = new Date();
+        trialEnd.setDate(trialEnd.getDate() + trialDays);
+        localStorage.setItem('quantia_trial_end', trialEnd.toISOString());
         this.checkTrialStatus();
     }
 

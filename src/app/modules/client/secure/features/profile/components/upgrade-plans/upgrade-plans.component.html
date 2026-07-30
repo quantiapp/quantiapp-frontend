@@ -46,7 +46,7 @@
           <div>
             <h4 class="text-xs font-extrabold text-[#F1C40F] uppercase tracking-wider">Experimenta Grátis</h4>
             <p class="text-xs text-(--secondary)/85 mt-1" appDarkable="dark:text-(--dm-secondary)/85">
-              Ativa o teu trial de 7 dias do plano **Pro Premium** e desfruta de todas as funcionalidades sem limites e com acesso offline!
+              Ativa o teu trial de {{ environment.trialDays || 30 }} dias do plano **Pro Premium** e desfruta de todas as funcionalidades sem limites e com acesso offline!
             </p>
           </div>
           <button 
@@ -55,7 +55,7 @@
             tailwindClassBackgroundColor="bg-(color:--primary)/63"
             tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
             class="w-full text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1.5 font-medium text-black cursor-pointer disabled:opacity-50">
-            Iniciar Trial de 7 Dias
+            Iniciar Trial de {{ environment.trialDays || 30 }} Dias
           </button>
         </div>
       }
@@ -264,6 +264,7 @@
                 <input 
                   formControlName="cardExpiry"
                   mask="00/00"
+                  [dropSpecialCharacters]="false"
                   placeholder="12/29" 
                   class="w-full px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-[#FAFAFA] dark:bg-white/5 focus:outline-none focus:border-[#F1C40F] text-(--secondary)"
                   appDarkable="dark:bg-white/5 dark:border-white/10 dark:text-(--dm-secondary)"

@@ -13,6 +13,7 @@ import { Darkable } from '@shared/directives/darkable';
 import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
 import { ToggleComponent } from '@shared/components/forms/toggle.component';
 import { NgxMaskDirective } from 'ngx-mask';
+import { environment } from '@environments/environment';
 
 export interface Plan {
   id: string;
@@ -45,9 +46,12 @@ export class UpgradePlansComponent implements OnInit {
   isSubmitting = signal<boolean>(false);
   billingCycle = signal<'monthly' | 'annual'>('monthly'); // 'monthly' | 'annual'
 
+  protected readonly environment = environment;
+
   activateTrial(): void {
     this.userStore.activateTrial();
-    PopupService.success("Trial de 7 dias ativado com sucesso!");
+    const days = this.environment.trialDays || 30;
+    PopupService.success(`Trial de ${days} dias ativado com sucesso!`);
     this.onSuccess.emit();
   }
 

@@ -16,7 +16,8 @@ export const environment = {
   production: true,
   server: '${process.env['server'] || 'http://localhost:8000'}',
   supabaseUrl: '${process.env['supabaseUrl'] || 'https://xyz.supabase.co'}',
-  supabaseAnonKey: '${process.env['supabaseAnonKey'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'}'
+  supabaseAnonKey: '${process.env['supabaseAnonKey'] || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'}',
+  trialDays: ${process.env['trialDays'] || 30}
 };
 `;
 
