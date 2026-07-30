@@ -159,7 +159,7 @@ import { ProfileFacade } from './profile.facade';
             appSubmitableButton
             tailwindClassBackgroundColor="bg-(color:--primary)/20"
             tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,10%)]"
-            class="w-full text-sm border border-(color:--primary)/40 rounded-[0.563rem] px-2.5 text-center py-1.5 font-medium text-(color:--secondary)"
+            class="w-full text-sm border border-(--primary)/40 rounded-[0.563rem] px-2.5 text-center py-1.5 font-medium text-(--secondary)"
             appDarkable="dark:text-(--dm-secondary)">
               Terminar sessão
             </button>
