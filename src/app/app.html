@@ -12,12 +12,14 @@
 @if (isOffline()) {
     @if (hasOfflineSupport()) {
         <!-- Toast for Offline support enabled (Pro/Unlimited plans) -->
-        <div class="fixed bottom-6 left-[50%] translate-x-[-50%] z-150 flex items-center gap-3 bg-[#202020] text-white px-5 py-3 rounded-full border border-white/10 shadow-2xl animate-pulse">
-            <span class="flex h-2.5 w-2.5 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-            </span>
-            <p class="text-sm font-medium">Sem ligação. A trabalhar em modo offline.</p>
+        <div class="fixed top-4 left-[50%] translate-x-[-50%] w-full limited-container z-150">
+            <div class="flex items-center justify-center gap-3 bg-[#F1C40F]/10 dark:bg-[#F1C40F]/15 text-[#C29B00] dark:text-[#F1C40F] border border-[#F1C40F]/20 dark:border-[#F1C40F]/30 px-5 py-3 rounded-[10px] shadow-sm animate-pulse w-full">
+                <span class="flex h-2.5 w-2.5 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                </span>
+                <p class="text-sm font-semibold">Sem ligação. A trabalhar em modo offline.</p>
+            </div>
         </div>
     } @else {
         <!-- Blocker overlay for Offline support disabled (Free plan) -->
