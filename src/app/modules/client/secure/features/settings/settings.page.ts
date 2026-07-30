@@ -226,8 +226,7 @@ export class SettingsPage implements OnInit {
   );
 
   languageOptions: SelectOption[] = [
-    { label: 'Português', value: AppLanguage.PORTUGUESE },
-    { label: 'Inglês', value: AppLanguage.ENGLISH }
+    { label: 'Português', value: AppLanguage.PORTUGUESE }
   ];
 
   themeOptions: SelectOption[] = [
