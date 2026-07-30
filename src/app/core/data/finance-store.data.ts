@@ -1,4 +1,4 @@
-import { computed, Injectable, Signal, signal } from "@angular/core";
+import { computed, Injectable, Signal, signal, effect } from "@angular/core";
 import { AccountType } from "@core/models/account-type.model";
 import { AccountAccess, AccountShare, BaseAccount, TransferGoalResource } from "@core/models/base-account.model";
 import { BaseGoal } from "@core/models/base-goal.model";
@@ -14,34 +14,79 @@ export interface GoalState {
     providedIn: 'root'
 })
 export class FinanceStore {
-    private _accounts = signal<BaseAccount[]>([]);
-    private _shared_accounts = signal<BaseAccount[]>([]);
-    private _account_share = signal<AccountShare>({});
+    private _accounts = signal<BaseAccount[]>(this.loadCache('accounts', []));
+    private _shared_accounts = signal<BaseAccount[]>(this.loadCache('shared_accounts', []));
+    private _account_share = signal<AccountShare>(this.loadCache('account_share', {}));
 
-    private _goals = signal<BaseGoal[]>([]);
+    private _goals = signal<BaseGoal[]>(this.loadCache('goals', []));
     initialGoalState = {
         goals: [],
         sharedGoals: {}
     };
 
-    private _transactions = signal<BaseTransaction[]>([]);
-    private _latest_transactions = signal<BaseTransaction[]>([]);
-    private _transactionsByAccountId = signal<Record<string, BaseTransaction[]>>({});
-    private _transactionsByGoalId = signal<Record<string, BaseTransaction[]>>({});
+    private _transactions = signal<BaseTransaction[]>(this.loadCache('transactions', []));
+    private _latest_transactions = signal<BaseTransaction[]>(this.loadCache('latest_transactions', []));
+    private _transactionsByAccountId = signal<Record<string, BaseTransaction[]>>(this.loadCache('transactionsByAccountId', {}));
+    private _transactionsByGoalId = signal<Record<string, BaseTransaction[]>>(this.loadCache('transactionsByGoalId', {}));
 
-    private _currencies = signal<Currency[]>([]);
-    private _accountTypes = signal<AccountType[]>([]);
+    private _currencies = signal<Currency[]>(this.loadCache('currencies', []));
+    private _accountTypes = signal<AccountType[]>(this.loadCache('accountTypes', []));
 
-    isAccountsLoaded = signal<boolean>(false);
-    isSharedAccountsLoaded = signal<boolean>(false);
-    isGoalsLoaded = signal<boolean>(false);
-    isLatestTransactionsLoaded = signal<boolean>(false);
-    isCurrenciesLoaded = signal<boolean>(false);
-    isAccountTypesLoaded = signal<boolean>(false);
+    isAccountsLoaded = signal<boolean>(this.loadCache('accounts', []).length > 0);
+    isSharedAccountsLoaded = signal<boolean>(this.loadCache('shared_accounts', []).length > 0);
+    isGoalsLoaded = signal<boolean>(this.loadCache('goals', []).length > 0);
+    isLatestTransactionsLoaded = signal<boolean>(this.loadCache('latest_transactions', []).length > 0);
+    isCurrenciesLoaded = signal<boolean>(this.loadCache('currencies', []).length > 0);
+    isAccountTypesLoaded = signal<boolean>(this.loadCache('accountTypes', []).length > 0);
 
     currencies: Signal<Currency[]> = this._currencies.asReadonly();
     baseCurrency: Signal<Currency> = computed(() => this._currencies().find(c => c.is_base)!);
     accountTypes: Signal<AccountType[]> = this._accountTypes.asReadonly();
+
+    constructor() {
+        effect(() => {
+            const accounts = this._accounts();
+            const shared_accounts = this._shared_accounts();
+            const goals = this._goals();
+            const transactions = this._transactions();
+            const latest_transactions = this._latest_transactions();
+            const transactionsByAccountId = this._transactionsByAccountId();
+            const transactionsByGoalId = this._transactionsByGoalId();
+            const currencies = this._currencies();
+            const accountTypes = this._accountTypes();
+            const account_share = this._account_share();
+
+            this.saveCache('accounts', accounts);
+            this.saveCache('shared_accounts', shared_accounts);
+            this.saveCache('goals', goals);
+            this.saveCache('transactions', transactions);
+            this.saveCache('latest_transactions', latest_transactions);
+            this.saveCache('transactionsByAccountId', transactionsByAccountId);
+            this.saveCache('transactionsByGoalId', transactionsByGoalId);
+            this.saveCache('currencies', currencies);
+            this.saveCache('accountTypes', accountTypes);
+            this.saveCache('account_share', account_share);
+        });
+    }
+
+    private loadCache<T>(key: string, defaultValue: T): T {
+        if (typeof window === 'undefined') return defaultValue;
+        try {
+            const cached = localStorage.getItem(`quantia_cache_${key}`);
+            return cached ? JSON.parse(cached) : defaultValue;
+        } catch {
+            return defaultValue;
+        }
+    }
+
+    private saveCache(key: string, data: any): void {
+        if (typeof window === 'undefined') return;
+        try {
+            localStorage.setItem(`quantia_cache_${key}`, JSON.stringify(data));
+        } catch (e) {
+            console.error(`Erro ao salvar cache financeiro para ${key}:`, e);
+        }
+    }
 
     accounts: Signal<BaseAccount[]> = this._accounts.asReadonly();
     shared_accounts: Signal<BaseAccount[]> = this._shared_accounts.asReadonly();
@@ -573,6 +618,21 @@ export class FinanceStore {
         this.isLatestTransactionsLoaded.set(false);
         this.isCurrenciesLoaded.set(false);
         this.isAccountTypesLoaded.set(false);
+        if (typeof window !== 'undefined') {
+            const keysToRemove = [
+                'quantia_cache_accounts',
+                'quantia_cache_shared_accounts',
+                'quantia_cache_account_share',
+                'quantia_cache_goals',
+                'quantia_cache_transactions',
+                'quantia_cache_latest_transactions',
+                'quantia_cache_transactionsByAccountId',
+                'quantia_cache_transactionsByGoalId',
+                'quantia_cache_currencies',
+                'quantia_cache_accountTypes'
+            ];
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+        }
     }
 }
 
