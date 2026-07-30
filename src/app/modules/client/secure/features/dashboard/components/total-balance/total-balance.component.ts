@@ -6,11 +6,12 @@ import { DashboardSummary } from '../../models';
 import { CustomCurrencyPipe } from '@shared/pipes/custom-currency-pipe';
 import { DrawerComponent } from "@shared/components/drawer.component";
 import { CreateTransactionComponent } from "@client/secure/features/transactions/components/create-transaction/create-transaction.component";
+import { SubmitableButton } from "@shared/directives/submitable-button";
 import { UserStore } from '@core/data/user-store.data';
 
 @Component({
   selector: 'app-total-balance',
-  imports: [CardTemplate, DialogComponent, Darkable, CustomCurrencyPipe, DrawerComponent, CreateTransactionComponent],
+  imports: [CardTemplate, DialogComponent, SubmitableButton, Darkable, CustomCurrencyPipe, DrawerComponent, CreateTransactionComponent],
   template: `
     <app-card>
       <ng-container header>
@@ -38,8 +39,8 @@ import { UserStore } from '@core/data/user-store.data';
                 appDarkable="dark:text-(color:--dm-secondary)"
                 class="flex justify-center items-center gap-1 bg-(color:--primary)/40 border border-(color:--primary) rounded-[0.313rem] px-[0.438rem] py-1 text-xs font-medium">
                   <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2.24166 8.61181C3.35382 9.71746 5.29339 11.25 7.50006 11.25C9.70674 11.25 11.6459 9.71746 12.7581 8.61181C13.0514 8.32022 13.1986 8.17392 13.292 7.88763C13.3586 7.68335 13.3586 7.31676 13.292 7.11249C13.1986 6.82618 13.0514 6.67986 12.7581 6.38823C11.6459 5.28259 9.70674 3.75002 7.50006 3.75002C5.29339 3.75002 3.35382 5.28259 2.24166 6.38823C1.94812 6.68006 1.80134 6.82608 1.70791 7.11248C1.64127 7.31676 1.64127 7.68335 1.70791 7.88763C1.80134 8.17403 1.94812 8.31999 2.24166 8.61181Z" stroke="#202020" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M6.24994 7.50005C6.24994 8.19041 6.80959 8.75006 7.49995 8.75006C8.19031 8.75006 8.74996 8.19041 8.74996 7.50005C8.74996 6.80969 8.19031 6.25004 7.49995 6.25004C6.80959 6.25004 6.24994 6.80969 6.24994 7.50005Z" stroke="#202020" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.24166 8.61181C3.35382 9.71746 5.29339 11.25 7.50006 11.25C9.70674 11.25 11.6459 9.71746 12.7581 8.61181C13.0514 8.32022 13.1986 8.17392 13.292 7.88763C13.3586 7.68335 13.3586 7.31676 13.292 7.11249C13.1986 6.82618 13.0514 6.67986 12.7581 6.38823C11.6459 5.28259 9.70674 3.75002 7.50006 3.75002C5.29339 3.75002 3.35382 5.28259 2.24166 6.38823C1.94812 6.68006 1.80134 6.82608 1.70791 7.11248C1.64127 7.31676 1.64127 7.68335 1.70791 7.88763C1.80134 8.17403 1.94812 8.31999 2.24166 8.61181Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.24994 7.50005C6.24994 8.19041 6.80959 8.75006 7.49995 8.75006C8.19031 8.75006 8.74996 8.19041 8.74996 7.50005C8.74996 6.80969 8.19031 6.25004 7.49995 6.25004C6.80959 6.25004 6.24994 6.80969 6.24994 7.50005Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   Taxas de câmbio
                 </button>
@@ -72,9 +73,11 @@ import { UserStore } from '@core/data/user-store.data';
                     </div>
                   </div>
                   <div class="dialog-footer flex justify-end items-center">
-                    <button (click)="close()"
-                    class="w-fit text-sm text-(--secondary) border border-(--secondary)/40 dark:border-(--dm-secondary)/40 rounded-[0.563rem] px-3 py-1 font-medium cursor-pointer"
-                    appDarkable="dark:text-(--dm-secondary)">
+                    <button (click)="close()" appSubmitableButton
+                    tailwindClassBackgroundColor="bg-(color:--primary)/63"
+                    tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
+                    class="w-fit text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1 font-medium text-(--secondary)"
+                    appDarkable="dark:text-(--secondary)">
                       Fechar
                     </button>
                   </div>

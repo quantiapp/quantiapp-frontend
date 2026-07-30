@@ -20,7 +20,9 @@ export class Darkable implements OnInit {
     })
 
     this.renderer2.addClass(this.element.nativeElement, `darkmode-enabled`);
-    this.renderer2.addClass(this.element.nativeElement, `${ this.appDarkable() }`);
+    this.appDarkable().split(/\s+/).filter(c => !!c).forEach(cls => {
+      this.renderer2.addClass(this.element.nativeElement, cls);
+    });
     this.renderer2.addClass(this.element.nativeElement, `${ transictionType() }`);
   }
 
