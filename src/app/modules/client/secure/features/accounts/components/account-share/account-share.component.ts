@@ -22,7 +22,7 @@ import { AccountShareFormComponent } from "./account-share-form/account-share-fo
 
       <div class="users-container overflow-x-auto">
         <div class="scroller w-fit flex justify-start items-stretch relative">
-          <button (click)="addUser()" class="sticky-btn sticky z-2 left-0 top-0 px-2 bg-[#F2F4F5] flex flex-col gap-2 text-(--primary) darkmode-enabled dark:bg-[#414141] dm-bg-color-transition">
+          <button (click)="addUser()" class="sticky-btn sticky z-2 left-0 top-0 px-2 bg-[#F2F4F5] flex flex-col gap-2 text-(--primary) darkmode-enabled dark:bg-(--dm-bg) dm-bg-color-transition">
             <div class="icon">
               <svg width="65" height="65" viewBox="0 0 65 65" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="1" y="1" width="63" height="63" rx="31.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-dasharray="4 4"/>
