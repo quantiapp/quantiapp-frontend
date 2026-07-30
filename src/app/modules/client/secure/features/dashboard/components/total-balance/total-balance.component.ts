@@ -68,7 +68,9 @@ import { UserStore } from '@core/data/user-store.data';
                           <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">{{ conversion.value | money: '1.0-6' }}</p>
                         </div>
                       } @empty {
-                        <p class="text-sm text-(color:--secondary)" appDarkable="dark:text-(color:--dm-secondary)">Sem dados</p>
+                        <p class="text-sm text-center text-(color:--secondary)/60 font-medium py-2" appDarkable="dark:text-(color:--dm-secondary)/60">
+                          Não existem taxas de câmbio ativas porque todas as tuas contas utilizam a tua moeda padrão ({{ summary().exchanges.user_currency.code }}).
+                        </p>
                       }
                     </div>
                   </div>
