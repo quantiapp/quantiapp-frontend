@@ -66,7 +66,7 @@ import { PopupService } from '@core/services/pop-up.service';
           <input
           type="date"
           id="date"
-          class="bg-[#FAFAFA] text-sm border w-full border-black/5 text-(--secondary) placeholder:text-(--secondary)/60 py-2.5 px-4 rounded-[10px] focus:outline-(--primary)"
+          class="bg-[#FAFAFA] text-sm border w-full block min-w-0 max-w-full box-border border-black/5 text-(--secondary) placeholder:text-(--secondary)/60 py-2.5 px-4 rounded-[10px] focus:outline-(--primary)"
           formControlName="date"
           >
         </div>
