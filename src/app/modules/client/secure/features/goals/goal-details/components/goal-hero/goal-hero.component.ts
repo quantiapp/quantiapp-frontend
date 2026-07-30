@@ -17,17 +17,17 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
   imports: [RouterLink, HeroUi, DialogComponent, CustomCurrencyPipe, IconContainerContainer, NgxMaskPipe, EditGoalComponent, Darkable, DrawerComponent, CreateTransactionComponent],
   template: `
     <app-hero>
-      <div class="goal-details flex gap-2 flex-col items p-4">
+      <div class="goal-details flex gap-2 flex-col items p-4 text-(--secondary)" appDarkable="dark:text-(--secondary)">
         <div class="icon-container flex justify-center text-(color:--primary)">
           <app-icon-container [tailwindClassArray]="['px-2!', 'py-[9px]!', 'rounded-lg!']" [key]="goal().goal.icon_key" [bgColor]="'#202020'" [width]="40" [height]="40"></app-icon-container>
         </div>
         <div class="goal-name w-full flex gap-2.5 flex-wrap justify-center items-center">
-          <h1 class="text-2xl font-medium text-center">
+          <h1 class="text-2xl font-medium text-center text-(--secondary)" appDarkable="dark:text-(--secondary)">
             {{ goal().goal.name }}
           </h1>
           <q-dialog>
             <ng-template #invoker let-open="open">
-              <button (click)="open()" class="badge cursor-pointer bg-white text-(--secondary) text-xs border border-(--primary) rounded-[5px] px-2 py-1 font-medium">
+              <button (click)="open()" class="badge cursor-pointer bg-white text-(--secondary) text-xs border border-(--primary) rounded-[5px] px-2 py-1 font-medium" appDarkable="dark:text-(--secondary)">
                 Editar
               </button>
             </ng-template>
@@ -45,7 +45,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
         </div>
         @if(goal().goal.track_progress) {
           <div class="goal-amount-desc mt-2">
-            <p class="text-sm text-(--secondary)/60 font-medium text-center">
+            <p class="text-sm text-(--secondary)/60 font-medium text-center" appDarkable="dark:text-(--secondary)/60">
               @let excess_amount = goal().goal.excess_amount;
               @let current_amount = goal().goal.current_amount;
               @let target_amount = goal().goal.target_amount;
@@ -66,7 +66,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
         
         @if(!goal().goal.track_progress) {
           <div class="goal-balance w-fit mx-auto mt-0 relative">
-            <p class=" text-[2rem] text-(--secondary) font-bold value-text-shadow text-center">
+            <p class=" text-[2rem] text-(--secondary) font-bold value-text-shadow text-center" appDarkable="dark:text-(--secondary)">
               {{ account().account.can_see_balance ? (goal()!.goal.current_amount | money ) : '**********,00' }}
             </p>
           </div>
@@ -85,6 +85,7 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
               <div class="achievements text-sm font-medium">
                 <p
                 class=" text-[#202020]/60 duration-[.3s]"
+                appDarkable="dark:text-(--secondary)/60"
                 >
                   <span class="" [style.color]="'#202020'">
                     {{ (goal().goal.account.can_see_balance) ? (goal().goal.current_amount | money) : '*********' }}

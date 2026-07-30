@@ -31,7 +31,7 @@ import { RouterService } from '@core/services/router.service';
           tailwindClassBackgroundColor="bg-[#FF252A]/60"
           tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(255,37,42,25%)]"
           class="w-full text-sm border border-[#B6070B]/40 rounded-[0.563rem] px-2.5 text-center py-1.5 font-medium text-(--secondary)"
-          appDarkable="dark:text-(--dm-secondary)"
+          appDarkable="dark:text-(--secondary)"
           [disabled]="isDeletingAccount()">
             @if(isDeletingAccount()) {
               <app-bar-spinner></app-bar-spinner>

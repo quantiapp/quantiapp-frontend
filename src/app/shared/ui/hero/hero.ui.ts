@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { HeaderPartial } from "@core/partials/client/secure/header.partial";
+import { Darkable } from '@shared/directives/darkable';
 
 @Component({
   selector: 'app-hero',
-  imports: [HeaderPartial],
+  imports: [HeaderPartial, Darkable],
   template: `
     <section class="hero-container" [style.background]="'linear-gradient(180deg, rgba(241,196,15,100%) 21%, rgba(241,196,15,38%) 60%, rgba(241,196,15,26%) 77%, rgba(241,196,15,0%) 100%)'">
       <div class="watermark absolute top-0 left-0">
@@ -14,7 +15,7 @@ import { HeaderPartial } from "@core/partials/client/secure/header.partial";
       <div class="limited-container pt-[3.25rem] pb-4 flex flex-col gap-6">
         <div class="hero-header">
           <app-header>
-            <p class="text-sm font-medium">
+            <p class="text-sm font-medium text-(--secondary)" appDarkable="dark:text-(--secondary)">
               O primeiro passo é o mais valioso
             </p>
           </app-header>
