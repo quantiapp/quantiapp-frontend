@@ -16,9 +16,13 @@ import { ProfileFacade } from './profile.facade';
       <!-- PANEL HEADER & AVATAR -->
       <div class="flex flex-col items-center justify-center gap-4 py-2">
         <h1 class="panel-header text-lg font-medium text-center text-(--secondary)" appDarkable="dark:text-(--dm-secondary)/60">Perfil</h1>
-        <div class="w-24 h-24 rounded-full bg-[#F1C40F] flex items-center justify-center text-black font-semibold text-4xl shadow-md">
-          {{ userInitial() }}
-        </div>
+        @if (user()?.avatar) {
+          <img [src]="user()!.avatar" class="w-24 h-24 rounded-full object-cover shadow-md" alt="Avatar">
+        } @else {
+          <div class="w-24 h-24 rounded-full bg-[#F1C40F] flex items-center justify-center text-black font-semibold text-4xl shadow-md">
+            {{ userInitial() }}
+          </div>
+        }
       </div>
 
       <!-- CARDS CONTAINER -->
@@ -84,14 +88,14 @@ import { ProfileFacade } from './profile.facade';
               </div>
             </div>
 
-            <!-- METAS ATINGIDAS (SEM BORDA EM BAIXO) -->
+            <!-- METAS (SEM BORDA EM BAIXO) -->
             <div class="flex items-center gap-4 pt-1">
               <div class="text-(--secondary) shrink-0" appDarkable="dark:text-(--dm-secondary)">
                 <app-icon-container [tailwindClassArray]="['p-0!']" [width]="22" [height]="22" [key]="'big-flag'" [colorAttr]="'stroke'"></app-icon-container>
               </div>
               <div class="flex flex-col">
-                <span class="text-sm font-medium text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">Metas atingidas</span>
-                <span class="text-xs text-(--secondary)/60" appDarkable="dark:text-(--dm-secondary)/60">{{ completedGoalCount() }}</span>
+                <span class="text-sm font-medium text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">Metas</span>
+                <span class="text-xs text-(--secondary)/60" appDarkable="dark:text-(--dm-secondary)/60">{{ goalCount() }}</span>
               </div>
             </div>
           </div>
@@ -204,8 +208,9 @@ export class ProfilePage {
     return this.financeStore.accounts().length || 3;
   });
 
-  completedGoalCount = computed(() => {
-    return this.financeStore.goals().length || 0;
+  goalCount = computed(() => {
+    const userAccountIds = new Set(this.financeStore.accounts().map(acc => acc.id));
+    return this.financeStore.goals().filter(goal => userAccountIds.has(goal.account_id)).length;
   });
 
   upgradePremium(): void {

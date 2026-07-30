@@ -19,9 +19,13 @@ import { PopupService } from '@core/services/pop-up.service';
       <!-- PANEL HEADER & AVATAR -->
       <div class="flex flex-col items-center justify-center gap-4 py-2">
         <h1 class="panel-header text-lg font-medium text-center text-(--secondary)" appDarkable="dark:text-(--dm-secondary)/60">Definições Gerais</h1>
-        <div class="w-24 h-24 rounded-full bg-[#F1C40F] flex items-center justify-center text-black font-semibold text-4xl shadow-md">
-          {{ userInitial() }}
-        </div>
+        @if (user()?.avatar) {
+          <img [src]="user()!.avatar" class="w-24 h-24 rounded-full object-cover shadow-md" alt="Avatar">
+        } @else {
+          <div class="w-24 h-24 rounded-full bg-[#F1C40F] flex items-center justify-center text-black font-semibold text-4xl shadow-md">
+            {{ userInitial() }}
+          </div>
+        }
       </div>
 
       <!-- CARDS CONTAINER -->

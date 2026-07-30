@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Dropdownable } from "@shared/directives/dropdownable";
 import { Darkable } from "@shared/directives/darkable";
@@ -7,6 +7,7 @@ import { CreateAccountComponent } from "@client/secure/features/accounts/compone
 import { IconContainerContainer } from "@shared/ui/icon/icon-container.container";
 import { CreateGoalComponent } from "@client/secure/features/goals/components/create-goal/create-goal.component";
 import { CreateTransactionComponent } from "@client/secure/features/transactions/components/create-transaction/create-transaction.component";
+import { UserStore } from '@core/data/user-store.data';
 
 @Component({
   selector: 'app-navigation',
@@ -121,10 +122,17 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
           </svg>
         </button>
   
-        <button [routerLink]="['/secure/profile']" [routerLinkActive]="'active'">
-          <svg width="31" height="30" viewBox="0 0 31 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.0208 24.1653C20.4186 22.376 18.0908 21.25 15.5 21.25C12.9092 21.25 10.5812 22.376 8.979 24.1653M15.5 26.25C9.2868 26.25 4.25 21.2132 4.25 15C4.25 8.7868 9.2868 3.75 15.5 3.75C21.7132 3.75 26.75 8.7868 26.75 15C26.75 21.2132 21.7132 26.25 15.5 26.25ZM15.5 17.5C13.4289 17.5 11.75 15.8211 11.75 13.75C11.75 11.6789 13.4289 10 15.5 10C17.5711 10 19.25 11.6789 19.25 13.75C19.25 15.8211 17.5711 17.5 15.5 17.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <button [routerLink]="['/secure/profile']" #rla="routerLinkActive" [routerLinkActive]="'active'" class="flex justify-center items-center">
+          @if (user()?.avatar) {
+            <img [src]="user()!.avatar" 
+                 class="w-[30px] h-[30px] rounded-full object-cover border-2 border-[#B3B3B3] transition-colors" 
+                 [class.border-[#F1C40F]]="rla.isActive" 
+                 alt="Profile">
+          } @else {
+            <svg width="31" height="30" viewBox="0 0 31 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.0208 24.1653C20.4186 22.376 18.0908 21.25 15.5 21.25C12.9092 21.25 10.5812 22.376 8.979 24.1653M15.5 26.25C9.2868 26.25 4.25 21.2132 4.25 15C4.25 8.7868 9.2868 3.75 15.5 3.75C21.7132 3.75 26.75 8.7868 26.75 15C26.75 21.2132 21.7132 26.25 15.5 26.25ZM15.5 17.5C13.4289 17.5 11.75 15.8211 11.75 13.75C11.75 11.6789 13.4289 10 15.5 10C17.5711 10 19.25 11.6789 19.25 13.75C19.25 15.8211 17.5711 17.5 15.5 17.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          }
         </button>
       </nav>
     </div>
@@ -139,6 +147,9 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
   `
 })
 export class NavigationPartial implements OnInit {
+  private userStore = inject(UserStore);
+  user = this.userStore.user;
+
   dropdownIsExtended = signal(false);
   ngOnInit(): void {
 
