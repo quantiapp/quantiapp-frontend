@@ -31,8 +31,36 @@ export abstract class BaseActionFacade implements FacadeDispatchableAction {
     isLoadingGoals = signal(false);
     isLoadingTransactions = signal(false);
 
+    private static lastSyncTime: number = 0;
+    private readonly COOLDOWN_MS = 10000; // 10 segundos
+
     action(deps?: any): Observable<any> {
+        const now = Date.now();
+        const shouldRefresh = (now - BaseActionFacade.lastSyncTime) > this.COOLDOWN_MS;
+
         if (this.ignoreAction()) {
+            if (!this.connectionService.isOffline() && shouldRefresh) {
+                BaseActionFacade.lastSyncTime = now;
+                this.httpSchema.get<any>('api/bootstrap').pipe(
+                    tap(data => {
+                        if (data) {
+                            if (data.profile) this.userStore.loadUser(data.profile);
+                            if (data.settings) this.userStore.loadSettings(data.settings);
+
+                            if (data.currencies) this.financeStore.loadCurrencies(data.currencies);
+                            if (data.account_types) this.financeStore.loadAccountTypes(data.account_types);
+                            if (data.accounts) this.financeStore.loadAccounts(data.accounts);
+                            if (data.shared_accounts) this.financeStore.loadSharedAccounts(data.shared_accounts);
+                            if (data.goals) this.financeStore.loadGoals(data.goals);
+                            if (data.latest_transactions) this.financeStore.loadLatestTransactions(data.latest_transactions);
+                        }
+                    }),
+                    catchError(() => {
+                        BaseActionFacade.lastSyncTime = 0;
+                        return of(null);
+                    })
+                ).subscribe();
+            }
             return of(true);
         }
 
@@ -40,6 +68,7 @@ export abstract class BaseActionFacade implements FacadeDispatchableAction {
         this.isLoadingGoals.set(!this.financeStore.isGoalsLoaded());
         this.isLoadingTransactions.set(!this.financeStore.isLatestTransactionsLoaded());
 
+        BaseActionFacade.lastSyncTime = now;
         return this.httpSchema.get<any>('api/bootstrap').pipe(
             tap(data => {
                 if (data) {
@@ -54,7 +83,10 @@ export abstract class BaseActionFacade implements FacadeDispatchableAction {
                     if (data.latest_transactions) this.financeStore.loadLatestTransactions(data.latest_transactions);
                 }
             }),
-            catchError(() => of(null)),
+            catchError(() => {
+                BaseActionFacade.lastSyncTime = 0;
+                return of(null);
+            }),
             finalize(() => {
                 this.isLoadingAccount.set(false);
                 this.isLoadingGoals.set(false);
