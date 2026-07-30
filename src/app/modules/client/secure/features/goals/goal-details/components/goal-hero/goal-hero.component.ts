@@ -85,7 +85,6 @@ import { CreateTransactionComponent } from "@client/secure/features/transactions
               <div class="achievements text-sm font-medium">
                 <p
                 class=" text-[#202020]/60 duration-[.3s]"
-                appDarkable="dark:text-(color:--dm-secondary)"
                 >
                   <span class="" [style.color]="'#202020'">
                     {{ (goal().goal.account.can_see_balance) ? (goal().goal.current_amount | money) : '*********' }}
