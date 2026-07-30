@@ -8,15 +8,16 @@ export type AppTheme = 'Claro' | 'Escuro' | 'Sistema' | 'light' | 'dark' | 'syst
 })
 export class ThemeService {
   private readonly STORAGE_KEY = 'quantia_theme';
-  activeTheme = signal<AppTheme>('Claro');
+  activeTheme = signal<AppTheme>('Sistema');
 
   constructor() {
     this.initTheme();
+    this.setupSystemThemeListener();
   }
 
   initTheme(): void {
     const saved = localStorage.getItem(this.STORAGE_KEY) as AppTheme | null;
-    const themeToApply = saved || 'Claro';
+    const themeToApply = saved || 'Sistema';
     this.setTheme(themeToApply);
   }
 
@@ -35,6 +36,21 @@ export class ThemeService {
       } else {
         document.documentElement.classList.remove('dark');
       }
+    }
+  }
+
+  private setupSystemThemeListener(): void {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        const theme = this.activeTheme();
+        if (theme === 'Sistema' || theme === AppThemeMode.SYSTEM) {
+          if (e.matches) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        }
+      });
     }
   }
 }
