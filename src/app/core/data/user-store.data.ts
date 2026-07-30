@@ -44,62 +44,16 @@ export class UserStore {
         if (cachedUser?.plan_limits) {
             this.planLimits.set(cachedUser.plan_limits);
         }
-        this.checkTrialStatus();
     }
 
-    checkTrialStatus(): void {
-        if (typeof window === 'undefined') return;
-        const trialEndStr = localStorage.getItem('quantia_trial_end');
-        if (!trialEndStr) return;
-
-        const currentPlanName = this._user()?.plan_limits?.plan_name || 'Free';
-        if (currentPlanName.toLowerCase() !== 'free') {
-            localStorage.removeItem('quantia_trial_end');
-            return;
-        }
-
-        const trialEnd = new Date(trialEndStr);
-        const now = new Date();
-
-        if (now < trialEnd) {
-            const proLimits = {
-                plan_name: 'Pro Premium (Trial)',
-                max_accounts: -1,
-                max_goals_per_account: -1,
-                max_shares: -1,
-                has_offline_mode: true
-            };
-            this.planLimits.set(proLimits);
-        } else {
-            localStorage.removeItem('quantia_trial_end');
-            import('@core/services/pop-up.service').then(m => {
-                m.PopupService.info("O teu período de teste (trial) do plano Pro expirou. Revertemos para o plano Free.");
-            });
-            const freeLimits = {
-                plan_name: 'Free',
-                max_accounts: 3,
-                max_goals_per_account: 3,
-                max_shares: 0,
-                has_offline_mode: false
-            };
-            this.planLimits.set(freeLimits);
-        }
-    }
-
-    activateTrial(): void {
-        if (typeof window === 'undefined') return;
-        const trialDays = environment.trialDays || 30;
-        const trialEnd = new Date();
-        trialEnd.setDate(trialEnd.getDate() + trialDays);
-        localStorage.setItem('quantia_trial_end', trialEnd.toISOString());
-        this.checkTrialStatus();
+    setTrialEnd(trialEndsAt: string): void {
+        this.updateLocalUser({ trial_ends_at: trialEndsAt });
     }
 
     getRemainingTrialDays(): number {
-        if (typeof window === 'undefined') return 0;
-        const trialEndStr = localStorage.getItem('quantia_trial_end');
-        if (!trialEndStr) return 0;
-        const trialEnd = new Date(trialEndStr);
+        const user = this._user();
+        if (!user || !user.trial_ends_at) return 0;
+        const trialEnd = new Date(user.trial_ends_at);
         const now = new Date();
         const diffTime = trialEnd.getTime() - now.getTime();
         return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
@@ -131,7 +85,6 @@ export class UserStore {
         }
         this.isUserLoaded.set(true);
         this.saveCache('user', data);
-        this.checkTrialStatus();
     }
 
     updateLocalUser(changes: Partial<User>) {
@@ -143,7 +96,6 @@ export class UserStore {
         if (changes.plan_limits) {
             this.planLimits.set(changes.plan_limits);
         }
-        this.checkTrialStatus();
     }
 
     setPlanLimits(limits: PlanLimits) {

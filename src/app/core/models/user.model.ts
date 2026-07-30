@@ -13,5 +13,6 @@ export interface User {
     username: string,
     token?: string,
     avatar?: string,
+    trial_ends_at?: string,
     plan_limits?: PlanLimits
 }

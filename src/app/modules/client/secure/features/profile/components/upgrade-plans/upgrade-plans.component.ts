@@ -49,10 +49,24 @@ export class UpgradePlansComponent implements OnInit {
   protected readonly environment = environment;
 
   activateTrial(): void {
-    this.userStore.activateTrial();
-    const days = this.environment.trialDays || 30;
-    PopupService.success(`Trial de ${days} dias ativado com sucesso!`);
-    this.onSuccess.emit();
+    this.isSubmitting.set(true);
+    this.userService.activateTrial().subscribe({
+      next: () => {
+        this.userService.getUser().subscribe({
+          next: () => {
+            const days = this.environment.trialDays || 30;
+            PopupService.success(`Trial de ${days} dias ativado com sucesso!`);
+            this.onSuccess.emit();
+          },
+          error: () => this.isSubmitting.set(false),
+          complete: () => this.isSubmitting.set(false)
+        });
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        PopupService.error(err.error?.message || "Ocorreu um erro ao ativar o período de teste.");
+      }
+    });
   }
 
   getRemainingTrialDays(): number {

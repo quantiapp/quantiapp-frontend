@@ -23,4 +23,14 @@ export class UserService {
             tap((data) => this.userStore.loadSettings(data))
         );
     }
+
+    activateTrial(): Observable<any> {
+        return this.httpSchema.post<any>('api/user/activate-trial', {}).pipe(
+            tap(res => {
+                if (res && res.trial_ends_at) {
+                    this.userStore.setTrialEnd(res.trial_ends_at);
+                }
+            })
+        );
+    }
 }
