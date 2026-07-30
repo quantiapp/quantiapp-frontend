@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { Observable, tap } from "rxjs";
+import { map, Observable, tap } from "rxjs";
 import { AccountAccess } from "@core/models/base-account.model";
 import { FinanceStore } from "@core/data/finance-store.data";
 import { BaseResourceService } from "@core/abstracts/base-resource.abstract";
@@ -36,7 +36,9 @@ export class AccountShareService extends BaseResourceService<AccountAccess> {
     }
 
     findUser(user_key: string): Observable<User> {
-        return this.httpShema.post<User>(`api/account/sharing/find-user`, { user_key });
+        return this.httpShema.post<{ data: User }>(`api/account/sharing/find-user`, { user_key }).pipe(
+            map(res => res.data)
+        );
     }
 
     removeUser(id: string, account_id: string): Observable<any> {

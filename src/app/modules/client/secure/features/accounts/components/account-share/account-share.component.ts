@@ -123,6 +123,14 @@ export class AccountShareComponent {
         })
       }
     });
+
+    effect(() => {
+      if (!this.openAddUserDrawer()) {
+        untracked(() => {
+          this.searchedUser.set(null);
+        });
+      }
+    });
   }
 
   loadData(id: string): void {
