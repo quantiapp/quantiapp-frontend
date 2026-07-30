@@ -489,6 +489,73 @@ export class FinanceStore {
         this._latest_transactions.update(list => list.filter(transaction => transaction.id !== id));
     }
 
+    replaceTempId(tempId: string, realId: string) {
+        // Replace in accounts
+        this._accounts.update(list => list.map(acc => {
+            if (acc.id === tempId) {
+                return { ...acc, id: realId };
+            }
+            return acc;
+        }));
+
+        // Replace in shared accounts
+        this._shared_accounts.update(list => list.map(acc => {
+            if (acc.id === tempId) {
+                return { ...acc, id: realId };
+            }
+            return acc;
+        }));
+
+        // Replace in goals
+        this._goals.update(list => list.map(goal => {
+            let updated = { ...goal };
+            if (goal.id === tempId) {
+                updated.id = realId;
+            }
+            if (goal.account_id === tempId) {
+                updated.account_id = realId;
+            }
+            return updated;
+        }));
+
+        // Replace in transactions (main list and latest list)
+        const replaceInTx = (tx: BaseTransaction): BaseTransaction => {
+            let updated = { ...tx };
+            if (tx.id === tempId) {
+                updated.id = realId;
+            }
+            if (tx.source && tx.source.id === tempId) {
+                updated.source = { ...tx.source, id: realId };
+            }
+            if (tx.destination && tx.destination.id === tempId) {
+                updated.destination = { ...tx.destination, id: realId };
+            }
+            return updated;
+        };
+
+        this._transactions.update(list => list.map(replaceInTx));
+        this._latest_transactions.update(list => list.map(replaceInTx));
+
+        // Replace in transactions maps
+        this._transactionsByAccountId.update(map => {
+            const newMap: Record<string, BaseTransaction[]> = {};
+            for (let key in map) {
+                const newKey = key === tempId ? realId : key;
+                newMap[newKey] = map[key].map(replaceInTx);
+            }
+            return newMap;
+        });
+
+        this._transactionsByGoalId.update(map => {
+            const newMap: Record<string, BaseTransaction[]> = {};
+            for (let key in map) {
+                const newKey = key === tempId ? realId : key;
+                newMap[newKey] = map[key].map(replaceInTx);
+            }
+            return newMap;
+        });
+    }
+
     clear() {
         this._accounts.set([]);
         this._shared_accounts.set([]);

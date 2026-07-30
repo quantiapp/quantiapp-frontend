@@ -11,6 +11,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { environment } from '../environments/environment';
 import { ConnectionService } from '@core/services/connection.service';
 import { SubmitableButton } from '@shared/directives/submitable-button';
+import { OfflineSyncService } from '@core/services/offline-sync.service';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +27,7 @@ export class App implements OnInit {
   private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
   private connectionService = inject(ConnectionService);
+  private offlineSyncService = inject(OfflineSyncService);
 
   isOffline = this.connectionService.isOffline;
   hasOfflineSupport = this.connectionService.hasOfflineSupport;

@@ -3,6 +3,8 @@ import { inject, Injectable } from "@angular/core";
 import { catchError, Observable, of, throwError } from "rxjs";
 import { environment } from "environments/environment";
 import { PopupService } from "./pop-up.service";
+import { ConnectionService } from "./connection.service";
+import { OfflineSyncService } from "./offline-sync.service";
 
 @Injectable({
     providedIn: 'root'
@@ -10,6 +12,8 @@ import { PopupService } from "./pop-up.service";
 export class HttpSchema {
 
     private http = inject(HttpClient);
+    private connectionService = inject(ConnectionService);
+    private offlineSyncService = inject(OfflineSyncService);
 
     private headers: HttpHeaders = new HttpHeaders({
         'Authorization': 'Bearer token'
@@ -27,7 +31,23 @@ export class HttpSchema {
         );
     }
 
+    private handleOfflineWrite<T>(method: 'POST' | 'PUT' | 'PATCH' | 'DELETE', uri: string, body: any): Observable<T> {
+        let tempId: string | undefined;
+        let mockedResponse = body ? { ...body } : {};
+
+        if (method === 'POST') {
+            tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            mockedResponse.id = tempId;
+        }
+
+        this.offlineSyncService.queueRequest(method, uri, body, tempId);
+        return of({ data: mockedResponse } as any as T);
+    }
+
     post<T>(uri: string, body: any, options?: any ): Observable<T>{
+        if (this.connectionService.isOffline() && this.connectionService.hasOfflineSupport()) {
+            return this.handleOfflineWrite<T>('POST', uri, body);
+        }
 
         let localHeaders: HttpHeaders = this.appendOrReplaceHeaders({
             'Access-Control-Allow-Origin': '*',
@@ -47,6 +67,10 @@ export class HttpSchema {
     }
 
     put<T>(uri: string, body: any, options?: any): Observable<T>{
+        if (this.connectionService.isOffline() && this.connectionService.hasOfflineSupport()) {
+            return this.handleOfflineWrite<T>('PUT', uri, body);
+        }
+
         let localHeaders: HttpHeaders = this.appendOrReplaceHeaders({
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PUT',
@@ -65,6 +89,10 @@ export class HttpSchema {
     }
 
     patch<T>(uri: string, body: any, options?: any): Observable<T>{
+        if (this.connectionService.isOffline() && this.connectionService.hasOfflineSupport()) {
+            return this.handleOfflineWrite<T>('PATCH', uri, body);
+        }
+
         let localHeaders: HttpHeaders = this.appendOrReplaceHeaders({
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET,POST,OPTIONS,DELETE,PUT',
@@ -83,6 +111,10 @@ export class HttpSchema {
     }
 
     delete<T>(uri: string, options?: {}): Observable<T>{
+        if (this.connectionService.isOffline() && this.connectionService.hasOfflineSupport()) {
+            return this.handleOfflineWrite<T>('DELETE', uri, null);
+        }
+
         return this.http.delete<T>(`${ environment.server }/${ uri }`, options)
         .pipe(
             catchError(error => {
