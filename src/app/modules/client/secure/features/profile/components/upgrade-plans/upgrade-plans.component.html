@@ -1,0 +1,370 @@
+<div class="upgrade-container flex flex-col h-full overflow-y-auto no-scrollbar pb-6 text-sm text-(--secondary)">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-4 mb-4">
+    <div class="flex items-center gap-3">
+      @if (paymentStep() === 'payment') {
+        <button (click)="backToPlans()" class="cursor-pointer text-(--secondary) p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-all">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+      }
+      <h3 class="text-lg font-semibold text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">
+        @if (paymentStep() === 'plans') { Gerir Subscrição }
+        @else if (paymentStep() === 'payment') { Simular Pagamento }
+        @else if (paymentStep() === 'processing') { A Processar... }
+        @else { Sucesso! }
+      </h3>
+    </div>
+  </div>
+
+  <!-- STEP 1: PLANS SELECTION -->
+  @if (paymentStep() === 'plans') {
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-20 gap-3">
+        <app-bar-spinner></app-bar-spinner>
+        <span class="text-xs text-(--secondary)/60">A carregar planos...</span>
+      </div>
+    } @else {
+      <!-- TRIAL BANNERS -->
+      @if (getRemainingTrialDays() > 0) {
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-4 flex justify-between items-center text-xs">
+          <div>
+            <span class="font-bold text-amber-500 block">Trial Pro Premium Ativo</span>
+            <span class="opacity-75">Tens {{ getRemainingTrialDays() }} dias restantes de teste.</span>
+          </div>
+          <span class="bg-[#F1C40F] text-black font-extrabold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded">
+            Teste
+          </span>
+        </div>
+      }
+
+      @if (getRemainingTrialDays() === 0 && userStore.planLimits().plan_name.toLowerCase() === 'free') {
+        <div class="bg-gradient-to-tr from-amber-500/15 to-[#F1C40F]/15 border border-[#F1C40F]/30 rounded-xl p-4 mb-4 flex flex-col gap-3">
+          <div>
+            <h4 class="text-xs font-extrabold text-[#F1C40F] uppercase tracking-wider">Experimenta Grátis</h4>
+            <p class="text-xs text-(--secondary)/85 mt-1">
+              Ativa o teu trial de 7 dias do plano **Pro Premium** e desfruta de todas as funcionalidades sem limites e com acesso offline!
+            </p>
+          </div>
+          <button 
+            (click)="activateTrial()"
+            class="bg-[#F1C40F] hover:bg-[#F1C40F]/90 text-black text-xs font-bold py-2 px-4 rounded-lg w-fit cursor-pointer transition-all border border-[#C29B00]">
+            Iniciar Trial de 7 Dias
+          </button>
+        </div>
+      }
+
+      <!-- BILLING TOGGLE -->
+      <div class="flex justify-center items-center gap-4 mb-6">
+        <span class="text-xs font-medium" [class.text-amber-500]="billingCycle() === 'monthly'">Mensal</span>
+        <button 
+          (click)="billingCycle.set(billingCycle() === 'monthly' ? 'annual' : 'monthly')"
+          class="w-12 h-6 bg-black/10 dark:bg-white/10 rounded-full relative transition-all duration-300 p-0.5 cursor-pointer">
+          <span 
+            class="block w-5 h-5 bg-[#F1C40F] rounded-full absolute top-0.5 transition-all duration-300 shadow-md"
+            [class.left-0.5]="billingCycle() === 'monthly'"
+            [class.left-6.5]="billingCycle() === 'annual'">
+          </span>
+        </button>
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-medium" [class.text-amber-500]="billingCycle() === 'annual'">Anual</span>
+          <span class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+            Poupa 20%
+          </span>
+        </div>
+      </div>
+
+      <!-- PLANS GRID -->
+      <div class="flex flex-col gap-4">
+        @for (plan of plans(); track plan.id) {
+          <div 
+            class="plan-card border border-black/10 dark:border-white/10 rounded-[12px] p-5 flex flex-col gap-4 transition-all relative overflow-hidden"
+            [class.border-[#F1C40F]]="isCurrentPlan(plan)"
+            [class.bg-[#F1C40F]/3]="isCurrentPlan(plan)">
+            
+            @if (isCurrentPlan(plan)) {
+              <span class="absolute top-0 right-0 bg-[#F1C40F] text-[#202020] text-[10px] font-bold px-3 py-1 rounded-bl-lg">
+                Plano Atual
+              </span>
+            }
+
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="text-base font-bold text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">{{ plan.name }}</h4>
+                <p class="text-xs text-(--secondary)/60 mt-1">Ideal para gerir finanças pessoais</p>
+              </div>
+              <div class="text-right">
+                <span class="text-xl font-extrabold text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">
+                  {{ billingCycle() === 'monthly' ? plan.price_monthly : getYearlyPrice(plan.price_monthly) }}€
+                </span>
+                <span class="text-[10px] text-(--secondary)/60 block">
+                  / {{ billingCycle() === 'monthly' ? 'mês' : 'ano' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- FEATURES LIST -->
+            <ul class="flex flex-col gap-2.5 my-2">
+              <li class="flex items-center gap-3 text-xs">
+                <app-icon-container [tailwindClassArray]="['p-0!']" [width]="16" [height]="16" [key]="'check'" [colorAttr]="'stroke'" class="text-amber-500"></app-icon-container>
+                <span>
+                  {{ plan.accounts_limit === null ? 'Contas Ilimitadas' : (plan.accounts_limit + ' Contas') }}
+                </span>
+              </li>
+              <li class="flex items-center gap-3 text-xs">
+                <app-icon-container [tailwindClassArray]="['p-0!']" [width]="16" [height]="16" [key]="'check'" [colorAttr]="'stroke'" class="text-amber-500"></app-icon-container>
+                <span>
+                  {{ plan.goals_limit_by_account === null ? 'Metas Ilimitadas' : (plan.goals_limit_by_account + ' Metas por conta') }}
+                </span>
+              </li>
+              <li class="flex items-center gap-3 text-xs">
+                <app-icon-container [tailwindClassArray]="['p-0!']" [width]="16" [height]="16" [key]="'check'" [colorAttr]="'stroke'" class="text-amber-500"></app-icon-container>
+                <span>
+                  {{ plan.can_share_accounts ? 'Permite Contas Partilhadas' : 'Sem Contas Partilhadas' }}
+                </span>
+              </li>
+              <li class="flex items-center gap-3 text-xs">
+                <app-icon-container [tailwindClassArray]="['p-0!']" [width]="16" [height]="16" [key]="'check'" [colorAttr]="'stroke'" class="text-amber-500"></app-icon-container>
+                <span>
+                  {{ plan.has_offline_mode ? 'Acesso Offline Completo' : 'Apenas Acesso Online' }}
+                </span>
+              </li>
+            </ul>
+
+            <button 
+              (click)="selectPlan(plan)"
+              appSubmitableButton
+              [disabled]="isCurrentPlan(plan)"
+              [tailwindClassBackgroundColor]="isCurrentPlan(plan) ? 'bg-black/10 dark:bg-white/5' : 'bg-[#F1C40F]'"
+              [tailwindClassShadowColor]="isCurrentPlan(plan) ? 'none' : 'inset-shadow-[0px_4px_4px_rgba(241,196,15,30%)]'"
+              class="w-full text-xs py-2 rounded-xl border border-black/10 dark:border-white/10 font-semibold cursor-pointer text-center text-(--secondary)"
+              [class.text-black]="!isCurrentPlan(plan)">
+              {{ isCurrentPlan(plan) ? 'Plano Ativo' : 'Upgrade' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- STEP 2: SIMULATE PAYMENT -->
+  @if (paymentStep() === 'payment' && selectedPlan()) {
+    <div class="flex flex-col gap-6">
+      
+      <!-- PLAN BILL DETAILS -->
+      <div class="bg-black/5 dark:bg-white/5 rounded-xl p-4 flex justify-between items-center text-xs">
+        <div>
+          <span class="font-bold block">{{ selectedPlan()!.name }}</span>
+          <span class="text-(--secondary)/60">{{ billingCycle() === 'monthly' ? 'Faturação Mensal' : 'Faturação Anual' }}</span>
+        </div>
+        <span class="text-base font-extrabold">
+          {{ billingCycle() === 'monthly' ? selectedPlan()!.price_monthly : getYearlyPrice(selectedPlan()!.price_monthly) }}€
+        </span>
+      </div>
+
+      <!-- METHOD TABS -->
+      <div class="flex border border-black/10 dark:border-white/10 rounded-xl p-1 gap-1">
+        <button 
+          (click)="setPaymentMethod('card')"
+          class="flex-1 py-2 text-xs font-semibold rounded-lg text-center cursor-pointer transition-all"
+          [class.bg-[#F1C40F]]="paymentMethod() === 'card'"
+          [class.text-black]="paymentMethod() === 'card'">
+          Cartão
+        </button>
+        <button 
+          (click)="setPaymentMethod('mbway')"
+          class="flex-1 py-2 text-xs font-semibold rounded-lg text-center cursor-pointer transition-all"
+          [class.bg-[#F1C40F]]="paymentMethod() === 'mbway'"
+          [class.text-black]="paymentMethod() === 'mbway'">
+          MB Way
+        </button>
+      </div>
+
+      <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()" class="flex flex-col gap-4">
+        
+        <!-- CARD DETAILS -->
+        @if (paymentMethod() === 'card') {
+          <!-- ANIMATED MOCK CARD -->
+          <div class="card-wrapper w-full h-44 mb-4 relative z-10 mx-auto max-w-[320px]">
+            <div class="credit-card w-full h-full rounded-2xl relative shadow-xl text-white p-5 flex flex-col justify-between"
+              [class.flipped]="cardFlipped()"
+              [style.background]="'linear-gradient(135deg, #2b2b2b 0%, #111 100%)'">
+              
+              <!-- CARD FRONT -->
+              <div class="card-front absolute inset-0 p-5 flex flex-col justify-between w-full h-full">
+                <div class="flex justify-between items-start">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-[9px] uppercase tracking-widest opacity-60">Quantia Premium</span>
+                    <span class="text-sm font-bold tracking-wide">QUANTIA CARD</span>
+                  </div>
+                  <!-- Sim chip -->
+                  <div class="w-10 h-8 bg-amber-400/25 rounded-md border border-amber-400/50"></div>
+                </div>
+                
+                <div class="text-base tracking-widest font-mono py-2">
+                  {{ paymentForm.get('cardNumber')?.value ? (paymentForm.get('cardNumber')?.value | slice:0:4) + ' ' + (paymentForm.get('cardNumber')?.value | slice:4:8) + ' ' + (paymentForm.get('cardNumber')?.value | slice:8:12) + ' ' + (paymentForm.get('cardNumber')?.value | slice:12:16) : '•••• •••• •••• ••••' }}
+                </div>
+                
+                <div class="flex justify-between items-end">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-[8px] uppercase tracking-widest opacity-60">Card Holder</span>
+                    <span class="text-xs uppercase font-medium max-w-[150px] truncate">
+                      {{ paymentForm.get('cardName')?.value || 'NOME COMPLETO' }}
+                    </span>
+                  </div>
+                  <div class="flex flex-col gap-0.5 text-right">
+                    <span class="text-[8px] uppercase tracking-widest opacity-60">Expires</span>
+                    <span class="text-xs font-mono">{{ paymentForm.get('cardExpiry')?.value || 'MM/AA' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CARD BACK -->
+              <div class="card-back absolute inset-0 flex flex-col justify-between w-full h-full py-5">
+                <div class="w-full h-10 bg-black"></div>
+                <div class="px-5 flex justify-between items-center">
+                  <div class="w-[75%] h-8 bg-white/20 rounded flex items-center px-3 text-[10px] text-white/50 italic">Signature strip</div>
+                  <div class="w-[18%] h-8 bg-white text-black font-mono font-bold text-center leading-8 rounded shadow-inner">
+                    {{ paymentForm.get('cardCvv')?.value || 'CVV' }}
+                  </div>
+                </div>
+                <div class="px-5 text-[8px] opacity-40">Esta é uma simulação de pagamento segura. Nenhum débito real será efetuado.</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD INPUTS -->
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold">Número do Cartão</label>
+              <input 
+                formControlName="cardNumber"
+                maxlength="16"
+                placeholder="1234567812345678" 
+                class="w-full px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-[#FAFAFA] dark:bg-white/5 focus:outline-none focus:border-[#F1C40F]"
+                (focus)="cardFlipped.set(false)">
+              @if (paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched) {
+                <span class="text-[10px] text-red-500">Número de cartão inválido (16 dígitos necessários).</span>
+              }
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold">Nome do Titular</label>
+              <input 
+                formControlName="cardName"
+                placeholder="Ex. ISAQUIAS S MARQUES" 
+                class="w-full px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-[#FAFAFA] dark:bg-white/5 focus:outline-none focus:border-[#F1C40F]"
+                (focus)="cardFlipped.set(false)">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-semibold">Validade (MM/AA)</label>
+                <input 
+                  formControlName="cardExpiry"
+                  placeholder="12/29" 
+                  maxlength="5"
+                  class="w-full px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-[#FAFAFA] dark:bg-white/5 focus:outline-none focus:border-[#F1C40F]"
+                  (focus)="cardFlipped.set(false)">
+                @if (paymentForm.get('cardExpiry')?.invalid && paymentForm.get('cardExpiry')?.touched) {
+                  <span class="text-[10px] text-red-500">Expirado ou formato incorreto.</span>
+                }
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-semibold">CVV</label>
+                <input 
+                  formControlName="cardCvv"
+                  placeholder="123" 
+                  maxlength="3"
+                  class="w-full px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-[#FAFAFA] dark:bg-white/5 focus:outline-none focus:border-[#F1C40F]"
+                  (focus)="cardFlipped.set(true)"
+                  (blur)="cardFlipped.set(false)">
+                @if (paymentForm.get('cardCvv')?.invalid && paymentForm.get('cardCvv')?.touched) {
+                  <span class="text-[10px] text-red-500">CVV inválido (3 dígitos).</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- MB WAY DETAILS -->
+        @if (paymentMethod() === 'mbway') {
+          <div class="flex flex-col gap-4 items-center py-6 text-center">
+            <!-- Mock MB Way Logo -->
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md tracking-wider">
+              MBw
+            </div>
+            <div>
+              <h4 class="text-sm font-semibold">Notificação de Pagamento Instantânea</h4>
+              <p class="text-xs text-(--secondary)/60 mt-1 max-w-[240px]">
+                Enviaremos um pedido de autorização de débito diretamente para a tua aplicação MB Way.
+              </p>
+            </div>
+
+            <div class="flex flex-col gap-1 w-full max-w-[280px] text-left">
+              <label class="text-xs font-semibold text-center">Nº Telemóvel associado</label>
+              <div class="relative w-full">
+                <span class="absolute left-4 top-[50%] translate-y-[-50%] text-xs opacity-60">+351</span>
+                <input 
+                  formControlName="mbwayPhone"
+                  placeholder="912345678" 
+                  maxlength="9"
+                  class="w-full pl-14 pr-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-[#FAFAFA] dark:bg-white/5 focus:outline-none focus:border-[#F1C40F] text-sm">
+              </div>
+              @if (paymentForm.get('mbwayPhone')?.invalid && paymentForm.get('mbwayPhone')?.touched) {
+                <span class="text-[10px] text-red-500 text-center">Telemóvel inválido (9 dígitos necessários).</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- SUBMIT PAYMENT -->
+        <button 
+          type="submit"
+          appSubmitableButton
+          tailwindClassBackgroundColor="bg-[#F1C40F]"
+          tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,35%)]"
+          class="w-full py-2.5 mt-4 rounded-xl border border-[#C29B00] font-bold text-black cursor-pointer text-center">
+          Pagar e Subscrever
+        </button>
+
+      </form>
+    </div>
+  }
+
+  <!-- STEP 3: PROCESSING LOADER -->
+  @if (paymentStep() === 'processing') {
+    <div class="flex flex-col items-center justify-center py-20 gap-4 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-[#F1C40F]/20 border-t-[#F1C40F]"></div>
+      <div>
+        <h4 class="text-sm font-semibold">A Validar Pagamento</h4>
+        <p class="text-xs text-(--secondary)/60 mt-1 max-w-[200px]">
+          Estamos a comunicar de forma segura com o emissor para validar o pagamento...
+        </p>
+      </div>
+    </div>
+  }
+
+  <!-- STEP 4: SUCCESS COMPLETED -->
+  @if (paymentStep() === 'success') {
+    <div class="flex flex-col items-center justify-center py-16 gap-6 text-center">
+      <div class="w-20 h-20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center border border-emerald-500/20 shadow-md">
+        <svg class="animate-bounce" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <div>
+        <h4 class="text-base font-extrabold text-emerald-600 dark:text-emerald-400">Subscrição Ativa!</h4>
+        <p class="text-xs text-(--secondary)/60 mt-1.5 max-w-[220px]">
+          Parabéns! O teu plano foi atualizado para **{{ selectedPlan()?.name }}** e todos os limites foram desbloqueados.
+        </p>
+      </div>
+    </div>
+  }
+
+</div>

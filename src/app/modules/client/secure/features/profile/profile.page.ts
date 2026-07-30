@@ -1,15 +1,18 @@
 import { Component, computed, inject } from '@angular/core';
 import { FinanceStore } from '@core/data/finance-store.data';
+import { UserStore } from '@core/data/user-store.data';
 import { Darkable } from '@shared/directives/darkable';
 import { SubmitableButton } from '@shared/directives/submitable-button';
 import { PopupService } from '@core/services/pop-up.service';
 import { IconContainerContainer } from '@shared/ui/icon/icon-container.container';
 import { CardTemplate } from '@client/secure/ui/card.template';
+import { DrawerComponent } from '@shared/components/drawer.component';
+import { UpgradePlansComponent } from './components/upgrade-plans/upgrade-plans.component';
 import { ProfileFacade } from './profile.facade';
 
 @Component({
   selector: 'app-profile-page',
-  imports: [Darkable, SubmitableButton, IconContainerContainer, CardTemplate],
+  imports: [Darkable, SubmitableButton, IconContainerContainer, CardTemplate, DrawerComponent, UpgradePlansComponent],
   template: `
     <div class="section-container py-8 flex flex-col min-h-screen gap-6 limited-container">
       
@@ -77,7 +80,7 @@ import { ProfileFacade } from './profile.facade';
           </ng-container>
 
           <div content class="flex flex-col gap-3">
-            <!-- CARTÕES -->
+            <!-- CONTAS -->
             <div class="flex items-center gap-4 pb-3 border-b border-black/5 dark:border-white/5">
               <div class="text-(--secondary) shrink-0" appDarkable="dark:text-(--dm-secondary)">
                 <app-icon-container [tailwindClassArray]="['p-0!']" [width]="22" [height]="22" [key]="'card'" [colorAttr]="'stroke'"></app-icon-container>
@@ -88,14 +91,27 @@ import { ProfileFacade } from './profile.facade';
               </div>
             </div>
 
-            <!-- METAS (SEM BORDA EM BAIXO) -->
-            <div class="flex items-center gap-4 pt-1">
+            <!-- METAS (COM BORDA) -->
+            <div class="flex items-center gap-4 pb-3 border-b border-black/5 dark:border-white/5">
               <div class="text-(--secondary) shrink-0" appDarkable="dark:text-(--dm-secondary)">
                 <app-icon-container [tailwindClassArray]="['p-0!']" [width]="22" [height]="22" [key]="'big-flag'" [colorAttr]="'stroke'"></app-icon-container>
               </div>
               <div class="flex flex-col">
                 <span class="text-sm font-medium text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">Metas</span>
                 <span class="text-xs text-(--secondary)/60" appDarkable="dark:text-(--dm-secondary)/60">{{ goalCount() }}</span>
+              </div>
+            </div>
+
+            <!-- PLANO ATUAL (SEM BORDA EM BAIXO) -->
+            <div class="flex items-center gap-4 pt-1">
+              <div class="text-(--secondary) shrink-0" appDarkable="dark:text-(--dm-secondary)">
+                <app-icon-container [tailwindClassArray]="['p-0!']" [width]="22" [height]="22" [key]="'user-guard'" [colorAttr]="'stroke'"></app-icon-container>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-(--secondary)" appDarkable="dark:text-(--dm-secondary)">Plano Atual</span>
+                <span class="text-xs text-amber-500 font-bold uppercase tracking-wider">
+                  {{ userStore.planLimits().plan_name }}
+                </span>
               </div>
             </div>
           </div>
@@ -112,14 +128,21 @@ import { ProfileFacade } from './profile.facade';
                 </p>
               </div>
 
-              <button
-              (click)="upgradePremium()"
-              appSubmitableButton
-              tailwindClassBackgroundColor="bg-(color:--primary)/63"
-              tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
-              class="w-full text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1.5 font-medium text-black">
-                Actualizar
-              </button>
+              <q-drawer>
+                <ng-template #invoker let-open="open">
+                  <button
+                  (click)="open()"
+                  appSubmitableButton
+                  tailwindClassBackgroundColor="bg-(color:--primary)/63"
+                  tailwindClassShadowColor="inset-shadow-[0px_4px_4px_rgba(241,196,15,40%)]"
+                  class="w-full text-sm border border-[#C29B00] rounded-[0.563rem] px-2 py-1.5 font-medium text-black cursor-pointer">
+                    Actualizar
+                  </button>
+                </ng-template>
+                <ng-template #panel let-close="close">
+                  <app-upgrade-plans (onSuccess)="close()"></app-upgrade-plans>
+                </ng-template>
+              </q-drawer>
             </div>
           </div>
         </app-card>
@@ -182,6 +205,7 @@ import { ProfileFacade } from './profile.facade';
 export class ProfilePage {
   private profileFacade = inject(ProfileFacade);
   private financeStore = inject(FinanceStore);
+  protected readonly userStore = inject(UserStore);
 
   user = this.profileFacade.user;
 
@@ -212,10 +236,6 @@ export class ProfilePage {
     const userAccountIds = new Set(this.financeStore.accounts().map(acc => acc.id));
     return this.financeStore.goals().filter(goal => userAccountIds.has(goal.account_id)).length;
   });
-
-  upgradePremium(): void {
-    PopupService.info("Funcionalidade Premium estará disponível brevemente!");
-  }
 
   logout(): void {
     this.profileFacade.logout();

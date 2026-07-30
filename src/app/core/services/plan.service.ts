@@ -1,6 +1,8 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { FinanceStore } from '@core/data/finance-store.data';
 import { UserStore } from '@core/data/user-store.data';
+import { HttpSchema } from './http-schema.service';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +10,7 @@ import { UserStore } from '@core/data/user-store.data';
 export class PlanService {
   private userStore = inject(UserStore);
   private financeStore = inject(FinanceStore);
+  private httpSchema = inject(HttpSchema);
 
   planLimits = computed(() => this.userStore.planLimits());
 
@@ -32,4 +35,12 @@ export class PlanService {
     const shareCount = (this.financeStore.accountShare()[accountId] ?? []).length;
     return shareCount < limits.max_shares;
   });
+
+  getAvailablePlans(): Observable<any> {
+    return this.httpSchema.get<any>('api/plans');
+  }
+
+  subscribeToPlan(planId: string): Observable<any> {
+    return this.httpSchema.post<any>('api/user/subscribe', { plan_id: planId });
+  }
 }
